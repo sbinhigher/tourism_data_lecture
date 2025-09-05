@@ -66,7 +66,8 @@ def _ask_until_correct(checker, prompt="> "):
 # =========================
 # Q1
 def show_q1():
-    _panel("Q1) 아래 코드의 빈칸에 들어갈 **출력 함수** 이름을 쓰세요.",
+    _panel("Q1) 결과물 출력하기",
+           "아래 코드의 빈칸에 들어갈 **출력 함수** 이름을 쓰세요.",
            code='빈칸("Hello Jeju")', hint="파이썬에서 화면에 출력할 때 쓰는 내장 함수")
 def answer_q1():
     return _ask_until_correct(lambda s: (s.strip()=="print", "함수 이름만 소문자로 입력하세요."))
