@@ -9,6 +9,12 @@ import contextlib
 CORRECT_ICON = "✅"
 WRONG_ICON   = "❌"
 
+def _matches_any(user_input, *accepted):
+    s = user_input.strip().lower().replace('`', '')
+    # 공백 줄이기
+    s = " ".join(s.split())
+    return any(s == a.strip().lower().replace('`','') for a in accepted)
+
 def set_icons(correct="✅", wrong="❌"):
     """정답/오답 아이콘 변경 (예: set_icons(correct='🎉', wrong='🚫'))"""
     global CORRECT_ICON, WRONG_ICON
@@ -87,16 +93,25 @@ def show_q2():
         hint="포맷 문자열의 '필드'와 format() 인자의 매칭 규칙을 떠올려 보세요."
     )
     display(Markdown(
-        "**보기**\n\n"
+        "보기\n\n"
         "1) f\"{name} is {age} years old.\"\n\n"
         "2) \"{} is {} years old.\".format(name, age)\n\n"
         "3) \"{name} is {age} years old.\".format(name, age)"
     ))
+
 def answer_q2():
-    # 정답: 3번 (named fields를 사용했는데 positional 인자를 넘겨서 오류)
-    return _ask_until_correct(
-        lambda s: (s.strip() == "3", "보기 번호(1/2/3) 중에서, 오류가 나는 케이스를 고르세요.")
-    )
+    # 정답: 3번. (named fields인데 positional 인자 전달)
+    def checker(ans):
+        if _matches_any(ans, "3"):
+            return True, ""
+        # 번호 대신 문구로 입력한 경우도 허용 (핵심 패턴 포함 여부로 허용)
+        t = ans.strip()
+        wrong_pattern = '"{name} is {age} years old.".format(name, age)'
+        # 작은따옴표/큰따옴표 혼용 입력도 허용
+        if "{name} is {age}" in t and ".format(" in t and "name, age" in t:
+            return True, ""
+        return False, "번호(3) 또는 해당 보기 문구를 정확히 입력하세요."
+    return _ask_until_correct(checker)
 
 # Q3
 def show_q3():
@@ -126,12 +141,16 @@ def answer_q4():
 
 # Q5
 def show_q5():
-    _panel("Q5) 객관식: 자료형 특성",
-           "**순서가 없고**, **중복을 허용하지 않으며**, **가변**인 자료형은?")
-    display(Markdown("**보기**\n\n1) list\n\n2) set\n\n3) tuple"))
-def answer_q5():
-    return _ask_until_correct(lambda s: (s.strip()=="2", "자료형의 핵심 특성을 떠올려 보세요."))
+    _panel(
+        "Q5) 객관식: 자료형 특성",
+        "순서가 없고, 중복을 허용하지 않으며, 가변인 자료형은?"
+    )
+    display(Markdown("보기\n\n1) list\n\n2) set\n\n3) tuple"))
 
+def answer_q5():
+    def checker(ans):
+        return (_matches_any(ans, "2", "set"), "번호(2) 또는 'set'을 입력하세요.")
+    return _ask_until_correct(checker)
 # Q6
 def show_q6():
     _panel(
@@ -175,15 +194,14 @@ def answer_q7():
 def show_q8():
     _panel(
         "Q8) 객관식: 딕셔너리 요소",
-        "다음 중 **딕셔너리를 구성하는 요소가 아닌 것**은?",
+        "다음 중 딕셔너리를 구성하는 요소가 아닌 것은?"
     )
-    display(Markdown("**보기**\n\n1) keys\n\n2) values\n\n3) indexes\n\n4) items"))
+    display(Markdown("보기\n\n1) keys\n\n2) values\n\n3) indexes\n\n4) items"))
 
 def answer_q8():
-    return _ask_until_correct(
-        lambda s: (s.strip() == "3", "딕셔너리에는 keys, values, items만 있고 indexes는 없습니다.")
-    )
-
+    def checker(ans):
+        return (_matches_any(ans, "3", "indexes"), "번호(3) 또는 'indexes'를 입력하세요.")
+    return _ask_until_correct(checker)
 # Q9
 def show_q9():
     _panel("Q9) f-string 결과 쓰기",
@@ -199,10 +217,12 @@ def show_q10():
         "Q10) 객관식: 부동소수점 비교",
         "`0.1 + 0.2 == 0.3` 의 결과로 알맞은 것은?"
     )
-    display(Markdown("**보기**\n\n1) True \n\n2) False\n\n3) 비교 불가"))
-def answer_q10():
-    return _ask_until_correct(lambda s: (s.strip()=="2", "부동소수점 표현 방식을 떠올려 보세요."))
+    display(Markdown("보기\n\n1) True\n\n2) False\n\n3) 비교 불가"))
 
+def answer_q10():
+    def checker(ans):
+        return (_matches_any(ans, "2", "false", "False"), "번호(2) 또는 'False'를 입력하세요.")
+    return _ask_until_correct(checker)
 # Q11
 def show_q11():
     _panel(
@@ -215,13 +235,19 @@ def show_q11():
             '4) 0.1 + 0.2 == 0.3'
         )
     )
-    # 보기 번호만 입력받게 하므로 별도 Markdown 선택지는 생략합니다.
 
 def answer_q11():
-    # 정답: 4  (1,2,3은 True / 4는 False)
-    return _ask_until_correct(
-        lambda s: (s.strip() == "4", "보기 번호(1/2/3/4) 중에서 서로 다른 결과를 고르세요.")
-    )
+    # 정답: 4 (1,2,3은 True / 4는 False)
+    def checker(ans):
+        # 번호 또는 표현식 자체로 정답 허용
+        if _matches_any(ans, "4"):
+            return True, ""
+        s = ans.strip().replace(" ", "")
+        if s in {"0.1+0.2==0.3", "(0.1+0.2)==0.3"}:
+            return True, ""
+        return False, "번호(4) 또는 해당 표현식을 정확히 입력하세요."
+    return _ask_until_correct(checker)
+    
 # Q12
 def show_q12():
     _panel(
@@ -419,7 +445,7 @@ def show_q16():
         "다음 중 튜플의 특성을 올바르게 설명한 것은?"
     )
     display(Markdown(
-        "**보기**\n\n"
+        "보기\n\n"
         "1) 튜플은 리스트와 달리 원소를 변경할 수 없다.\n\n"
         "2) 튜플은 집합(set)과 같이 중복을 제거한다.\n\n"
         "3) 튜플은 항상 딕셔너리의 키(key)로 사용할 수 없다.\n\n"
@@ -427,10 +453,16 @@ def show_q16():
     ))
 
 def answer_q16():
-    return _ask_until_correct(
-        lambda s: (s.strip() == "1", 
-                   "정답은 1번입니다. 튜플은 불변(immutable)하며, 리스트처럼 순서를 유지하고 중복을 허용하며 인덱싱/슬라이싱도 지원합니다.")
-    )
+    def checker(ans):
+        # 번호 또는 문구로 정답 인정
+        if _matches_any(ans, "1"):
+            return True, ""
+        # 한국어 문구(변형)도 어느 정도 허용
+        s = " ".join(ans.strip().split())
+        if "튜플" in s and ("변경할 수 없다" in s or "불변" in s):
+            return True, ""
+        return False, "번호(1) 또는 해당 보기 문구를 입력하세요."
+    return _ask_until_correct(checker)
 
 # ====== 프리뷰 전체 보기 ======
 def show_all():
