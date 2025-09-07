@@ -1,19 +1,12 @@
 # -*- coding: utf-8 -*-
-# Jupyter/콘솔 겸용 모듈: 프리뷰 패널 + 답안 입력 분리, 아이콘 커스터마이즈, 16문항
+# Jupyter/콘솔 겸용 모듈: 프리뷰 패널 + 답안 입력 분리, 아이콘 커스터마이즈
 from IPython.display import display, HTML, Markdown
-import math
 import io
 import contextlib
 
 # ====== 글로벌 아이콘 (사용자가 변경 가능) ======
 CORRECT_ICON = "✅"
 WRONG_ICON   = "❌"
-
-def _matches_any(user_input, *accepted):
-    s = user_input.strip().lower().replace('`', '')
-    # 공백 줄이기
-    s = " ".join(s.split())
-    return any(s == a.strip().lower().replace('`','') for a in accepted)
 
 def set_icons(correct="✅", wrong="❌"):
     """정답/오답 아이콘 변경 (예: set_icons(correct='🎉', wrong='🚫'))"""
@@ -33,7 +26,7 @@ PANEL_CSS = """
 </style>
 """
 
-def _panel(title: str, body_md: str, code: str|None=None, hint: str|None=None):
+def _panel(title, body_md, code=None, hint=None):
     html = [PANEL_CSS, '<div class="quiz-panel">']
     html += [f'<div class="quiz-title">{title}</div>',
              f'<div class="quiz-body">{body_md}</div>']
@@ -44,19 +37,15 @@ def _panel(title: str, body_md: str, code: str|None=None, hint: str|None=None):
     html.append('</div>')
     display(HTML("".join(html)))
 
-# ====== 도메인 데이터 (제주) ======
-destination = "Jeju"
-spots = ["Hallasan", "Seongsan Ilchulbong", "Hyeopjae Beach"]
-activities_list  = ["hiking", "swimming", "hiking", "snorkeling", "hiking"]
-activities_set   = set(activities_list)
-activities_tuple = tuple(["hiking", "swimming", "snorkeling"])
-spot_info = {
-    "Hallasan": {"height_m": 1947, "rating": 4.8, "activity": "hiking"},
-    "Seongsan Ilchulbong": {"height_m": 182, "rating": 4.9, "activity": "hiking"},
-    "Hyeopjae Beach": {"visitors_monthly": 100_000, "rating": 4.6, "activity": "swimming"}
-}
+# ====== 공용 헬퍼 ======
+def _matches_any(user_input, *accepted):
+    """번호/문구를 대소문자/공백 차이 허용하여 비교"""
+    s = user_input.strip().lower().replace('`', '').replace('"', "'")
+    s = " ".join(s.split())
+    def norm(a):
+        return " ".join(a.strip().lower().replace('`', '').replace('"', "'").split())
+    return any(s == norm(a) for a in accepted)
 
-# ====== 공용 입력 루프 ======
 def _ask_until_correct(checker, prompt="> "):
     while True:
         ans = input(prompt)
@@ -65,407 +54,162 @@ def _ask_until_correct(checker, prompt="> "):
             print(f"{CORRECT_ICON} 정답입니다!\n")
             return ans
         else:
-            print(f"{WRONG_ICON} {msg} 다시 시도하세요.\n")
+            print(f"{WRONG_ICON} {msg} 다시 시도하세요。\n")
+
+# ====== (선택) 도메인 데이터 (필요 시 활용) ======
+destination = "Jeju"
+spots = ["Hallasan", "Seongsan Ilchulbong", "Hyeopjae Beach"]
+spot_info = {
+    "Hallasan": {"height_m": 1947, "rating": 4.8},
+    "Seongsan": {"height_m": 182, "rating": 4.9},
+}
 
 # =========================
-# Q1 ~ Q16 : 프리뷰 + 답안
+# 난이도 하 – 복습 문제 Q1 ~ Q10
 # =========================
-# Q1
+
+# Q1. 출력 함수
 def show_q1():
     _panel(
-        "Q1) 결과물 출력하기",
-        "아래 코드의 빈칸에 들어갈 **출력 함수** 이름을 쓰세요.",
-        code='빈칸("Hello Jeju")',
+        "Q1) 출력 함수",
+        "아래 코드의 빈칸에 들어갈 **출력 함수 이름**을 쓰세요.",
+        code='_____("Hello Jeju")',
         hint="파이썬에서 화면에 출력할 때 쓰는 내장 함수"
     )
-
 def answer_q1():
-    return _ask_until_correct(
-        lambda s: (s.strip() == "print", "함수 이름만 소문자로 입력하세요.")
-    )
+    return _ask_until_correct(lambda s: (s.strip() == "print", "정확히 print 라고 입력하세요."))
 
-
-# Q2
+# Q2. 변수 지정 & 출력
 def show_q2():
     _panel(
-        "Q2) 객관식: 포맷팅 문법이 잘못 적용된 경우는?",
-        "다음 중 문법적으로 잘못되었거나 실행 시 오류가 나는 포맷팅을 고르세요.",
-        hint="포맷 문자열의 '필드'와 format() 인자의 매칭 규칙을 떠올려 보세요."
+        "Q2) 변수 지정 & 출력",
+        "다음 코드의 **출력 결과**를 정확히 쓰세요.",
+        code='city = "Jeju"\nprint(city)'
+    )
+def answer_q2():
+    return _ask_until_correct(lambda s: (s.strip() == "Jeju", "대소문자와 철자를 확인하세요."))
+
+# Q3. 숫자와 문자열 구분 (객관식)
+def show_q3():
+    _panel(
+        "Q3) 객관식: 숫자와 문자열 구분",
+        "다음 중 **문자열(string)** 인 것은?",
+        hint='따옴표(")로 둘러싸인 값은 문자열입니다.'
     )
     display(Markdown(
         "보기\n\n"
-        "1) f\"{name} is {age} years old.\"\n\n"
-        "2) \"{} is {} years old.\".format(name, age)\n\n"
-        "3) \"{name} is {age} years old.\".format(name, age)"
+        "1) 10\n\n"
+        "2) 3.14\n\n"
+        "3) \"10\"\n\n"
+        "4) 0"
     ))
-
-def answer_q2():
-    # 정답: 3번. (named fields인데 positional 인자 전달)
+def answer_q3():
     def checker(ans):
-        if _matches_any(ans, "3"):
-            return True, ""
-        # 번호 대신 문구로 입력한 경우도 허용 (핵심 패턴 포함 여부로 허용)
-        t = ans.strip()
-        wrong_pattern = '"{name} is {age} years old.".format(name, age)'
-        # 작은따옴표/큰따옴표 혼용 입력도 허용
-        if "{name} is {age}" in t and ".format(" in t and "name, age" in t:
-            return True, ""
-        return False, "번호(3) 또는 해당 보기 문구를 정확히 입력하세요."
+        a = ans.strip()
+        return (_matches_any(a, "3", '"10"', "'10'"), "번호 3 또는 \"10\" 을 입력하세요.")
     return _ask_until_correct(checker)
 
-# Q3
-def show_q3():
-    word = "Seongsan"
-    _panel(
-        "Q3) 인덱싱",
-        f'`word = "{word}"` 일 때, `word[0]`의 값(문자 그대로)을 쓰세요.',
-        code='word = "Seongsan"\nprint(word[0])',
-        hint="문자열 인덱스는 0부터 시작합니다."
-    )
-def answer_q3():
-    word = "Seongsan"
-    return _ask_until_correct(lambda s: (s.strip()==word[0], "문자 하나만 정확히 입력하세요."))
-
-# Q4
+# Q4. 문자열 연산 (객관식)
 def show_q4():
-    word = "Seongsan"
     _panel(
-        "Q4) 슬라이싱",
-        f'`word = "{word}"` 일 때, `word[:4]`의 결과를 쓰세요.',
-        code='word = "Seongsan"\nprint(word[:4])',
-        hint="슬라이스는 시작 포함, 끝 인덱스는 포함되지 않습니다."
+        "Q4) 객관식: 문자열 연산",
+        "다음 코드의 **출력 결과**로 알맞은 것은?",
+        code='print("10" + "20")'
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) 30\n\n"
+        "2) 1020\n\n"
+        "3) 오류"
+    ))
 def answer_q4():
-    word = "Seongsan"
-    return _ask_until_correct(lambda s: (s.strip()==word[:4], "대소문자/철자 확인!"))
+    return _ask_until_correct(lambda s: (_matches_any(s, "2", "1020"), "번호 2 또는 1020 을 입력하세요."))
 
-# Q5
+# Q5. 정수 + 실수 (객관식)
 def show_q5():
     _panel(
-        "Q5) 객관식: 자료형 특성",
-        "순서가 없고, 중복을 허용하지 않으며, 가변인 자료형은?"
-    )
-    display(Markdown("보기\n\n1) list\n\n2) set\n\n3) tuple"))
-
-def answer_q5():
-    def checker(ans):
-        return (_matches_any(ans, "2", "set"), "번호(2) 또는 'set'을 입력하세요.")
-    return _ask_until_correct(checker)
-# Q6
-def show_q6():
-    _panel(
-        "Q6) Set의 특성",
-        "다음 코드의 결과값을 **정수**로 입력하시오.",
-        code=f"print(len(set({activities_list})))",
-        hint="len() 함수는 시퀀스나 컬렉션의 길이(원소 개수)를 반환합니다."
-    )
-
-def answer_q6():
-    def checker(s):
-        s = s.strip()
-        if not s.isdigit():
-            return (False, "정수로 입력하세요.")
-        return (
-            int(s) == len(set(activities_list)),
-            f"set은 중복을 제거합니다. 결과 원소 개수는 {len(set(activities_list))}개입니다."
-        )
-    return _ask_until_correct(checker)
-
-# Q7
-def show_q7():
-    _panel(
-        "Q7) 딕셔너리 접근",
-        '`spot_info["Hallasan"]["height_m"]`의 값은? **정수**로 쓰세요.',
-        code=(
-            'spot_info = {\n'
-            '    "Hallasan": {"height_m": 1947, "rating": 4.8, "activity": "hiking"},\n'
-            '    "Seongsan Ilchulbong": {"height_m": 182, "rating": 4.9, "activity": "hiking"},\n'
-            '    "Hyeopjae Beach": {"visitors_monthly": 100_000, "rating": 4.6, "activity": "swimming"}\n'
-            '}\n'
-            'print(spot_info["Hallasan"]["height_m"])'
-        ),
-        hint='중첩 딕셔너리에서 키를 순서대로 접근합니다: ["Hallasan"] → ["height_m"]'
-    )
-def answer_q7():
-    return _ask_until_correct(lambda s: (s.strip().isdigit() and int(s.strip())==spot_info["Hallasan"]["height_m"],
-                                        "딕셔너리 중첩 접근을 떠올리세요."))
-
-# Q8
-def show_q8():
-    _panel(
-        "Q8) 객관식: 딕셔너리 요소",
-        "다음 중 딕셔너리를 구성하는 요소가 아닌 것은?"
-    )
-    display(Markdown("보기\n\n1) keys\n\n2) values\n\n3) indexes\n\n4) items"))
-
-def answer_q8():
-    def checker(ans):
-        return (_matches_any(ans, "3", "indexes"), "번호(3) 또는 'indexes'를 입력하세요.")
-    return _ask_until_correct(checker)
-# Q9
-def show_q9():
-    _panel("Q9) f-string 결과 쓰기",
-           "다음 f-string의 **출력 결과 전체**를 정확히 쓰세요.",
-           code='spot="Hallasan"; h=1947\nf"{spot} is {h} meters tall."')
-def answer_q9():
-    expected = "Hallasan is 1947 meters tall."
-    return _ask_until_correct(lambda s: (s.strip()==expected, "스페이스/철자/대소문자까지 정확히 입력!"))
-
-# Q10
-def show_q10():
-    _panel(
-        "Q10) 객관식: 부동소수점 비교",
-        "`0.1 + 0.2 == 0.3` 의 결과로 알맞은 것은?"
-    )
-    display(Markdown("보기\n\n1) True\n\n2) False\n\n3) 비교 불가"))
-
-def answer_q10():
-    def checker(ans):
-        return (_matches_any(ans, "2", "false", "False"), "번호(2) 또는 'False'를 입력하세요.")
-    return _ask_until_correct(checker)
-# Q11
-def show_q11():
-    _panel(
-        "Q11) 객관식: 결과가 다른 하나 고르기",
-        "서로 다른 결과(나머지 셋과 값이 다른 것)를 고르세요.",
-        code=(
-            '1) 10 + 10.0 == 20.0\n'
-            '2) len({"Hallasan": 1947, "Seongsan": 182}.keys()) == 2\n'
-            '3) ("hiking","swimming")[0] == ["hiking","swimming"][0]\n'
-            '4) 0.1 + 0.2 == 0.3'
-        )
-    )
-
-def answer_q11():
-    # 정답: 4 (1,2,3은 True / 4는 False)
-    def checker(ans):
-        # 번호 또는 표현식 자체로 정답 허용
-        if _matches_any(ans, "4"):
-            return True, ""
-        s = ans.strip().replace(" ", "")
-        if s in {"0.1+0.2==0.3", "(0.1+0.2)==0.3"}:
-            return True, ""
-        return False, "번호(4) 또는 해당 표현식을 정확히 입력하세요."
-    return _ask_until_correct(checker)
-    
-# Q12
-def show_q12():
-    _panel(
-        "Q12) 주관식(코드 작성, 한 줄)",
-        (
-            "`spot_info` 딕셔너리에서 **세 번째 키**를 꺼내는 코드를 한 줄 작성하세요.\n\n"
-            "출력(정답):\n"
-            "Hyeopjae Beach"
-        ),
-        code=(
-            'spot_info = {\n'
-            '    "Hallasan": {"height_m": 1947, "rating": 4.8},\n'
-            '    "Seongsan Ilchulbong": {"height_m": 182, "rating": 4.9},\n'
-            '    "Hyeopjae Beach": {"visitors_monthly": 100000, "rating": 4.6}\n'
-            '}\n'
-            '# 여기에 코드를 작성하세요.'
-        ),
-        hint="dict.keys()를 리스트로 변환해 인덱싱하세요."
-    )
-
-def answer_q12():
-    expected = "Hyeopjae Beach"
-    while True:
-        src = input("코드를 한 줄 입력하세요:\n> ").strip()
-        if not src:
-            print(f"{WRONG_ICON} 입력이 비어 있습니다. 다시 작성하세요.\n")
-            continue
-        if "\n" in src:
-            print(f"{WRONG_ICON} 여러 줄은 허용되지 않습니다. 한 줄만 작성하세요.\n")
-            continue
-        if expected in src and "spot_info" not in src:
-            print(f"{WRONG_ICON} 하드코딩은 허용되지 않습니다. 반드시 spot_info를 활용하세요.\n")
-            continue
-
-        ns = {"spot_info": spot_info}
-        buf = io.StringIO()
-        result = None
-        try:
-            # 표현식 평가 먼저 시도
-            result = eval(src, {}, ns)
-        except SyntaxError:
-            try:
-                with contextlib.redirect_stdout(buf):
-                    exec(src, {}, ns)
-            except Exception as e:
-                print(f"{WRONG_ICON} 실행 에러: {e}\n다시 시도해 보세요.\n")
-                continue
-        except Exception as e:
-            print(f"{WRONG_ICON} 실행 에러: {e}\n다시 시도해 보세요.\n")
-            continue
-
-        out_exec = buf.getvalue().strip()
-        if out_exec == expected or result == expected:
-            print(f"{CORRECT_ICON} 정답입니다!\n")
-            return src
-        else:
-            print(f"{WRONG_ICON} 출력이 다릅니다.\n"
-                  f"- 기대 출력: {expected!r}\n"
-                  f"- 실제 출력: {out_exec or result!r}\n"
-                  "힌트: list(spot_info.keys())[2] 를 떠올려 보세요.\n")
-# === 신규 추가 문항 (Q13~Q16) ===
-
-# Q13: 음수 인덱싱
-def show_q13():
-    word = "Hallasan"
-    _panel(
-        "Q13) 텍스트 타입의 인덱싱",
-        f'`word = "{word}"` 일 때, `word[-1]`의 값은? (마지막 글자)',
-        code='word = "Hallasan"\nprint(word[-1])'
-    )
-def answer_q13():
-    word = "Hallasan"
-    return _ask_until_correct(lambda s: (s.strip()==word[-1], "마지막 글자 하나를 입력."))
-
-# Q14: 슬라이싱 step
-def show_q14():
-    _panel(
-        "Q14) 주관식(코드 작성, 한 줄) : 슬라이싱으로 'san' 출력",
-        (
-            "문자열 s 에서 **슬라이싱만 사용하여** 'san' 을 꺼내는 코드를 작성하세요.\n"
-            "※ print를 쓰지 않아도 됩니다 (표현식만 입력해도 OK)."
-        ),
-        code=(
-            's = "SeongsanIlchulbong"\n'
-            '# 여기에 슬라이싱을 작성하세요. 예: s[start:end]'
-        ),
-        hint="슬라이싱 기본형: s[start:end] (start 포함, end 제외). 'san' 부분의 인덱스를 찾아보세요."
-    )
-
-def answer_q14():
-    s = "SeongsanIlchulbong"
-    expected = "san"
-    while True:
-        src = input("슬라이싱 한 줄을 입력하세요 (print 생략 가능):\n> ").strip()
-        if not src:
-            print(f"{WRONG_ICON} 입력이 비어 있습니다. 다시 작성하세요.\n")
-            continue
-        if "\n" in src:
-            print(f"{WRONG_ICON} 여러 줄은 허용되지 않습니다. 한 줄만 작성하세요.\n")
-            continue
-        # 슬라이싱 검사
-        if "s" not in src or "[" not in src or ":" not in src or "]" not in src:
-            print(f"{WRONG_ICON} 반드시 s[start:end] 형태의 슬라이싱을 사용하세요.\n")
-            continue
-
-        ns = {"s": s}
-        buf = io.StringIO()
-        result = None
-        try:
-            result = eval(src, {}, ns)  # 표현식
-        except SyntaxError:
-            try:
-                with contextlib.redirect_stdout(buf):
-                    exec(src, {}, ns)  # print 사용
-            except Exception as e:
-                print(f"{WRONG_ICON} 실행 에러: {e}\n다시 시도해 보세요.\n")
-                continue
-        except Exception as e:
-            print(f"{WRONG_ICON} 실행 에러: {e}\n다시 시도해 보세요.\n")
-            continue
-
-        out_exec = buf.getvalue().strip()
-        if out_exec == expected or result == expected:
-            print(f"{CORRECT_ICON} 정답입니다!\n")
-            return src
-        else:
-            shown = out_exec if out_exec else result
-            print(f"{WRONG_ICON} 출력/평가 결과가 다릅니다. 기대값은 'san' 입니다. "
-                  f"현재 출력: {shown!r}\n힌트: 'san'은 인덱스 4~7 사이에 있습니다.\n")
-# Q15: set 연산 (합집합/교집합)
-def show_q15():
-    _panel(
-        "Q15) 주관식(코드 작성, 한 줄) : 리스트 중복 제거",
-        (
-            "다음 리스트에서 **중복을 제거**하는 코드를 작성하세요.\n\n"
-            "출력(정답 예시):\n"
-            "['hiking', 'swimming', 'snorkeling']   (순서는 달라도 정답 처리)"
-        ),
-        code=(
-            "activities = ['hiking','swimming','hiking','snorkeling','hiking']\n"
-            "# 여기에 한 줄 코드를 작성하세요."
-        ),
-        hint="리스트는 중복을 허용하고, 세트는 중복을 제거합니다. list(set(...)) 형태를 떠올리세요."
-    )
-
-def answer_q15():
-    expected_set = {"hiking", "swimming", "snorkeling"}
-    activities = ['hiking','swimming','hiking','snorkeling','hiking']
-    while True:
-        src = input("중복을 제거하는 한 줄 코드를 작성하세요:\n> ").strip()
-        if not src:
-            print(f"{WRONG_ICON} 입력이 비어 있습니다. 다시 작성하세요.\n")
-            continue
-
-        ns = {"activities": activities}
-        buf = io.StringIO()
-        result = None
-        try:
-            result = eval(src, {}, ns)
-        except SyntaxError:
-            try:
-                with contextlib.redirect_stdout(buf):
-                    exec(src, {}, ns)
-            except Exception as e:
-                print(f"{WRONG_ICON} 실행 에러: {e}\n")
-                continue
-        except Exception as e:
-            print(f"{WRONG_ICON} 실행 에러: {e}\n")
-            continue
-
-        out_exec = buf.getvalue().strip()
-
-        # 실행 결과가 리스트 형태인지 확인
-        if isinstance(result, list):
-            if set(result) == expected_set:
-                print(f"{CORRECT_ICON} 정답입니다! (순서는 달라도 OK)\n")
-                return src
-        elif out_exec:
-            try:
-                evaluated = eval(out_exec)
-                if isinstance(evaluated, list) and set(evaluated) == expected_set:
-                    print(f"{CORRECT_ICON} 정답입니다!\n")
-                    return src
-            except Exception:
-                pass
-
-        print(f"{WRONG_ICON} 출력/평가 결과가 다릅니다.\n"
-              f"기대 원소: {expected_set}\n"
-              f"현재 결과: {result or out_exec}\n"
-              "힌트: list(set(activities)) 형태를 떠올리세요.\n")
-# Q16: dict.get 기본값
-def show_q16():
-    _panel(
-        "Q16) 객관식: 튜플(tuple)의 특성",
-        "다음 중 튜플의 특성을 올바르게 설명한 것은?"
+        "Q5) 객관식: 정수 + 실수",
+        "다음 코드의 **출력 결과**로 알맞은 것은?",
+        code="print(10 + 10.0)",
+        hint="정수 + 실수 → 결과는 실수"
     )
     display(Markdown(
         "보기\n\n"
-        "1) 튜플은 리스트와 달리 원소를 변경할 수 없다.\n\n"
-        "2) 튜플은 집합(set)과 같이 중복을 제거한다.\n\n"
-        "3) 튜플은 항상 딕셔너리의 키(key)로 사용할 수 없다.\n\n"
-        "4) 튜플은 문자열과 달리 인덱싱이나 슬라이싱을 지원하지 않는다."
+        "1) 20\n\n"
+        "2) 20.0\n\n"
+        "3) 오류"
     ))
+def answer_q5():
+    return _ask_until_correct(lambda s: (_matches_any(s, "2", "20.0"), "번호 2 또는 20.0 을 입력하세요."))
 
-def answer_q16():
-    def checker(ans):
-        # 번호 또는 문구로 정답 인정
-        if _matches_any(ans, "1"):
-            return True, ""
-        # 한국어 문구(변형)도 어느 정도 허용
-        s = " ".join(ans.strip().split())
-        if "튜플" in s and ("변경할 수 없다" in s or "불변" in s):
-            return True, ""
-        return False, "번호(1) 또는 해당 보기 문구를 입력하세요."
+# Q6. 대입(=)과 비교(==) (객관식)
+def show_q6():
+    _panel(
+        "Q6) 객관식: 대입 vs 비교",
+        "다음 중 올바른 설명을 고르세요."
+    )
+    display(Markdown(
+        "보기\n\n"
+        "1) = 는 값을 비교하고, == 는 값을 대입한다.\n\n"
+        "2) = 는 값을 대입하고, == 는 값을 비교한다.\n\n"
+        "3) 둘 다 같은 의미다."
+    ))
+def answer_q6():
+    return _ask_until_correct(lambda s: (_matches_any(s, "2", "= 는 값을 대입하고, == 는 값을 비교한다."), "번호 2 또는 설명을 입력하세요."))
+
+# Q7. 소수 연산 주의 (참/거짓)
+def show_q7():
+    _panel(
+        "Q7) 참/거짓: 소수 연산 주의",
+        "다음의 참/거짓을 판단하세요.",
+        code="0.1 + 0.2 == 0.3",
+        hint="부동소수점 오차"
+    )
+def answer_q7():
+    def checker(s):
+        a = s.strip().lower()
+        return (a in {"false", "거짓", "f"}, "정답은 거짓(False) 입니다.")
     return _ask_until_correct(checker)
 
-# ====== 프리뷰 전체 보기 ======
+# Q8. 문자열 반복
+def show_q8():
+    _panel(
+        "Q8) 문자열 반복",
+        "다음 코드의 **출력 결과**를 쓰세요.",
+        code="print('10' * 3)"
+    )
+def answer_q8():
+    return _ask_until_correct(lambda s: (s.strip() == "101010", "정확히 101010 을 입력하세요."))
+
+# Q9. 노트북 환경의 출력 (참/거짓)
+def show_q9():
+    _panel(
+        "Q9) 참/거짓: 노트북 출력",
+        "Colab/Jupyter에서 **마지막 줄에 변수명만 적고 실행**하면, print 없이도 그 변수의 값이 표시된다. (참/거짓)"
+    )
+def answer_q9():
+    def checker(s):
+        a = s.strip().lower()
+        return (a in {"true", "참", "t"}, "정답은 참(True) 입니다.")
+    return _ask_until_correct(checker)
+
+# Q10. 데이터 타입 함수 활용 (print_type)
+def show_q10():
+    _panel(
+        "Q10) 데이터 타입 함수 활용",
+        "노트북에서 제공된 함수 `print_type(x)` 를 먼저 정의/실행했다고 가정합니다.\n아래 호출의 **한글 타입명**을 쓰세요.",
+        code="print_type(3.14)   # 데이터 타입 (한글): ______",
+        hint="수업 자료의 print_type 구현을 기준으로 작성하세요."
+    )
+def answer_q10():
+    # 기본 기대값은 '실수형' (교안 구현 기준). 환경에 따라 'float'를 허용할 수도 있음.
+    def checker(s):
+        a = s.strip()
+        return (a in {"실수형", "float", "float형"}, "예: 실수형 (환경에 따라 float 도 허용)")
+    return _ask_until_correct(checker)
+
+# ====== 프리뷰 전체 보기 (이 10개만) ======
 def show_all():
-    show_q1(); show_q2(); show_q3(); show_q4(); show_q5(); show_q6(); show_q7(); show_q8()
-    show_q9(); show_q10(); show_q11(); show_q12(); show_q13(); show_q14(); show_q15(); show_q16()
+    show_q1(); show_q2(); show_q3(); show_q4(); show_q5()
+    show_q6(); show_q7(); show_q8(); show_q9(); show_q10()
     display(Markdown("> 프리뷰가 모두 표시되었습니다. 이제 각 문항의 `answer_qX()`를 실행해서 답만 입력하세요!"))
