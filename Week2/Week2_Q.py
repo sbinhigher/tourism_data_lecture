@@ -143,27 +143,55 @@ def answer_q5():
     return _ask_until_correct(lambda s: (_matches_any(s, "2", "20.0"), "번호 2 또는 20.0 을 입력하세요."))
 
 # Q6. 대입(=)과 비교(==) (객관식)
+# Q6. 변수명 가능/불가능 (복수정답)
 def show_q6():
     _panel(
-        "Q6) 객관식: 대입 vs 비교",
-        "다음 중 올바른 설명을 고르세요."
+        "Q6) 객관식(복수선택): 변수명으로 사용할 수 있는 것을 모두 고르시오.",
+        "아래 보기 중 **파이썬 변수명으로 사용 가능한 것**을 모두 고르세요. (정답 2개)\n"
+        "입력 예시: 1,4  또는  4, 1",
+        hint="규칙: 숫자로 시작 X, 하이픈(-) X, 공백 X, 예약어(예: class) X. 영문/숫자/밑줄(_), 그리고 첫 글자는 영문/밑줄."
     )
     display(Markdown(
         "보기\n\n"
-        "1) = 는 값을 비교하고, == 는 값을 대입한다.\n\n"
-        "2) = 는 값을 대입하고, == 는 값을 비교한다.\n\n"
-        "3) 둘 다 같은 의미다."
+        "1) visitor_count\n\n"
+        "2) class\n\n"
+        "3) 2nd_place\n\n"
+        "4) _score2\n\n"
+        "5) user-name"
     ))
+
 def answer_q6():
-    return _ask_until_correct(lambda s: (_matches_any(s, "2", "= 는 값을 대입하고, == 는 값을 비교한다."), "번호 2 또는 설명을 입력하세요."))
+    # 정답: {1, 4}
+    correct = {"1", "4"}
+    valid_texts = {"visitor_count", "_score2"}
+
+    def parse_choices(s: str):
+        # "1,4" / "4, 1" / "1  ,   4" 등 허용
+        parts = [p.strip() for p in s.replace(" ", "").split(",") if p.strip()]
+        return set(parts)
+
+    def checker(ans):
+        a = ans.strip()
+        # 번호로 답한 경우
+        if any(ch.isdigit() for ch in a):
+            chosen = parse_choices(a)
+            if chosen == correct:
+                return True, ""
+            return False, "정답은 2개입니다. 예: 1,4"
+        # 텍스트로 답한 경우(둘 다 포함해야 정답)
+        lowered = set(" ".join(a.lower().split()).split())
+        if valid_texts.issubset(lowered):
+            return True, ""
+        return False, "번호(예: 1,4) 또는 변수명(visitor_count _score2)을 정확히 입력하세요."
+
+    return _ask_until_correct(checker)
 
 # Q7. 소수 연산 주의 (참/거짓)
 def show_q7():
     _panel(
         "Q7) 참/거짓: 소수 연산 주의",
         "다음의 참/거짓을 판단하세요.",
-        code="0.1 + 0.2 == 0.3",
-        hint="부동소수점 오차"
+        code="0.1 + 0.2 == 0.3"
     )
 def answer_q7():
     def checker(s):
@@ -194,19 +222,26 @@ def answer_q9():
     return _ask_until_correct(checker)
 
 # Q10. 데이터 타입 함수 활용 (print_type)
+# Q10. print의 구분자 파라미터
 def show_q10():
     _panel(
-        "Q10) 데이터 타입 함수 활용",
-        "노트북에서 제공된 함수 `print_type(x)` 를 먼저 정의/실행했다고 가정합니다.\n아래 호출의 **한글 타입명**을 쓰세요.",
-        code="print_type(3.14)   # 데이터 타입 (한글): ______",
-        hint="수업 자료의 print_type 구현을 기준으로 작성하세요."
+        "Q10) 객관식: print 함수의 구분자 파라미터",
+        "다음 중 **print**에서 여러 값을 출력할 때 **값 사이에 들어갈 구분자**를 지정하는 파라미터 이름은?"
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) sep\n\n"
+        "2) end\n\n"
+        "3) seq\n\n"
+        "4) delimiter\n\n"
+        "5) split"
+    ))
+
 def answer_q10():
-    # 기본 기대값은 '실수형' (교안 구현 기준). 환경에 따라 'float'를 허용할 수도 있음.
-    def checker(s):
-        a = s.strip()
-        return (a in {"실수형", "float", "float형"}, "예: 실수형 (환경에 따라 float 도 허용)")
-    return _ask_until_correct(checker)
+    # 정답: 1) sep
+    return _ask_until_correct(
+        lambda s: (_matches_any(s, "1", "sep"), "번호 1 또는 'sep' 를 입력하세요.")
+    )
 
 # ====== 프리뷰 전체 보기 (이 10개만) ======
 def show_all():
