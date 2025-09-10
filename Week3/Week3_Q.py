@@ -251,28 +251,38 @@ def answer_q9(show_explanation: bool = True):
         explain_q9()
     return ans
 
-# Q10. f-string 포맷팅
+# Q10. replace() 메서드 활용
 def show_q10():
     _panel(
-        "Q10) 문자열 포맷팅",
-        "도시 이름과 평점을 출력하려고 합니다. f-string을 이용하여 'Jeju의 평점은 4.8점입니다.' 를 출력하는 코드를 작성하세요.",
-        code="city = 'Jeju'\nrating = 4.8\nprint(    )"
+        "Q10) 객관식: replace() 메서드",
+        "다음 코드의 실행 결과로 알맞은 것은?",
+        code=(
+            "text = 'banana banana banana'\n"
+            "print(text.replace('banana', 'apple', 2))"
+        ),
+        hint="count=2 → 앞에서부터 2번만 바꿉니다."
     )
-def answer_q10(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "f\"{city}의 평점은 {rating}점입니다.\""), "힌트: f-string은 f\"...{변수}...\" 형태입니다."))
-    if show_explanation:
-        explain_q10()
-    return ans
+    display(Markdown(
+        "보기\n\n"
+        "1) apple apple apple\n\n"
+        "2) apple apple banana\n\n"
+        "3) apple banana banana\n\n"
+        "4) banana banana apple"
+    ))
 
-# ====== 프리뷰 전체 보기 (이 10개만) ======
-def show_all():
-    show_q1(); show_q2(); show_q3(); show_q4(); show_q5()
-    show_q6(); show_q7(); show_q8(); show_q9(); show_q10()
-    display(Markdown("> 프리뷰가 모두 표시되었습니다. 이제 각 문항의 `answer_qX()`를 실행해서 답만 입력하세요!"))
+def answer_q10(show_explanation: bool = True):
+    def checker(ans):
+        return (_matches_any(ans, "2", "apple apple banana"), "정답은 2) apple apple banana 입니다.")
+    result = _ask_until_correct(checker)
+    if show_explanation:
+        print("Q10 해설:")
+        print("replace('banana','apple',2)는 앞에서부터 두 번만 'banana'를 'apple'로 바꿉니다.")
+        print("따라서 결과는 'apple apple banana' 입니다.")
+    return result
 
 
 # =========================
-# 해설 전용 함수들
+# 해설 전용 함수들 (업데이트)
 # =========================
 
 def explain_q1():
@@ -280,47 +290,60 @@ def explain_q1():
 
 def explain_q2():
     print("Q2 해설: s[0:3] 은 0~2번째까지 잘라내므로 'Pyt'이 출력됩니다.")
+    print("         슬라이싱은 시작 인덱스 포함, 끝 인덱스 미포함 규칙을 기억하세요.")
 
 def explain_q3():
-    print("Q3 해설:")
+    print("Q3 해설: 데이터 형의 기본 특성")
     print("1) 문자열(str)은 불변(immutable)이다. ✅ 올바른 설명입니다.")
     print("2) 10 + 10.0 의 결과 타입은 int 이다. ❌ 틀림 → 정수 + 실수 = float 이므로 결과는 float입니다.")
     print("3) 인덱싱은 1부터 시작한다. ❌ 틀림 → 파이썬은 0부터 시작합니다.")
-    print("4) '3' + 4 는 7 이 된다. ❌ 틀림 → 문자열 '3'과 숫자 4는 더할 수 없으므로 TypeError가 발생합니다.")
+    print("4) '3' + 4 는 7 이 된다. ❌ 틀림 → 문자열 '3'과 숫자 4는 더할 수 없어 TypeError가 발생합니다.")
 
 def explain_q4():
-    print("Q4 해설: / 는 실수 나눗셈, // 는 몫, ** 는 제곱 연산이므로 최종 값은 16.5가 됩니다.")
+    print("Q4 해설: / 는 실수 나눗셈, // 는 몫(정수 나눗셈), ** 는 거듭제곱 연산입니다.")
+    print("         a + b/c - d//2 + e**2 = 7 + 10/4 - 2 + 9 = 7 + 2.5 - 2 + 9 = 16.5")
 
 def explain_q5():
     print("Q5 해설: 연산 결과의 타입")
     print("1) int ❌ 틀림 → 정수와 실수를 더하면 결과는 실수입니다.")
     print("2) float ✅ 정답 → 10 + 10.0 = 20.0 으로 float 입니다.")
     print("3) str ❌ 틀림 → 문자열 연산이 아니므로 str 이 될 수 없습니다.")
-    print("4) bool ❌ 틀림 → True/False와 관련된 연산이 아니므로 bool 이 아닙니다.\n")
+    print("4) bool ❌ 틀림 → True/False와 관련된 연산이 아니므로 bool 이 아닙니다.")
 
 def explain_q6():
-    print("Q6 해설: f-string은 가장 직관적이고 간결하며, format()은 중괄호에 변수를 삽입하는 방식입니다.")
+    print("Q6 해설: 문자열 포맷팅")
+    print("- f-string: f\"{city} has {rating} rating.\" 처럼 변수값을 직접 삽입할 수 있어 간결합니다.")
+    print("- format(): \"{} has {} rating.\".format(city, rating) 도 동일한 결과를 냅니다.")
 
 def explain_q7():
-    print("Q7 해설: replace()는 문자열의 일부를 새 문자열로 치환한 새로운 문자열을 반환합니다.")
+    print("Q7 해설: str() 변환 후 ‘복원 가능’ 판단")
+    print("1) float(str(3.14)) ✅ 가능 → '3.14'는 float()로 정확히 3.14로 복원됩니다.")
+    print("2) bool(str(True))  ❌ 일반적 복원으로 보지 않습니다.")
+    print("   - 이유: bool('무슨문자열이든') 은 비어있지 않으면 항상 True 입니다.")
+    print("           예를 들어 bool('False') 도 True 가 되어 의미 보존이 되지 않습니다.")
+    print("3) list(str([1, 2, 3])) ❌ '[1, 2, 3]' 은 단순 문자열일 뿐 list 로 파싱되지 않습니다.")
+    print("4) dict(str({'a': 1})) ❌ \"{'a': 1}\" 역시 문자열이며 dict()로 변환할 수 없습니다.")
 
 def explain_q8():
     print("Q8 해설: 기본형이 아닌 것")
-    print("1) list ✅ 정답 → list는 컬렉션형으로 기본형이 아닙니다.")
+    print("1) list ✅ 정답 → list는 컬렉션형(복합형)으로 기본형이 아닙니다.")
     print("2) int ❌ 틀림 → 숫자형 기본형입니다.")
     print("3) float ❌ 틀림 → 숫자형 기본형입니다.")
     print("4) bool ❌ 틀림 → 불리안 기본형입니다.")
-    print("5) str ❌ 틀림 → 문자열 기본형입니다.\n")
+    print("5) str ❌ 틀림 → 문자열 기본형입니다.")
 
 def explain_q9():
     print("Q9 해설: 숫자형 변환 에러")
-    print("1) int(\"123\") ✅ 정상 → '123' 은 정수로 변환 가능합니다.")
-    print("2) float(\"3.14\") ✅ 정상 → '3.14' 는 실수로 변환 가능합니다.")
-    print("3) int(\"3.14\") ❌ 에러 → int()는 소수점 문자열을 직접 변환하지 못해 ValueError 발생.")
-    print("4) float(\"10\") ✅ 정상 → '10' 은 10.0 으로 변환됩니다.\n")
+    print("1) int('123')   ✅ 정상 → '123' 은 정수 123으로 변환 가능합니다.")
+    print("2) float('3.14')✅ 정상 → '3.14' 는 실수 3.14로 변환 가능합니다.")
+    print("3) int('3.14')  ❌ 에러 → int()는 소수점 문자열을 직접 변환하지 못해 ValueError 발생.")
+    print("4) float('10')  ✅ 정상 → '10' 은 10.0 으로 변환됩니다.")
 
 def explain_q10():
-    print("Q10 해설: f-string을 사용하면 변수 값을 문자열 안에 바로 삽입할 수 있습니다.")
+    print("Q10 해설: replace(old, new, count)")
+    print("- count를 지정하면 앞에서부터 해당 횟수만 치환합니다.")
+    print("- 예제: 'banana banana banana' 에서 2회 치환 → 'apple apple banana'")
+    print("- count를 생략하면 전체가 치환됩니다.")
 
 
 # =========================
