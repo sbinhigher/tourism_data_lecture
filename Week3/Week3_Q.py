@@ -181,18 +181,35 @@ def answer_q6(show_explanation: bool = True):
         explain_q6()
     return ans
 
-# Q7. replace() 메서드
+# Q8. 문자열의 역변환 (객관식)
 def show_q7():
     _panel(
-        "Q7) 문자열 메서드",
-        "문자열 text = 'I like python' 에서 'python'을 'java'로 바꾸어 출력하는 코드를 작성하세요.",
-        code="text = 'I like python'\nprint(    )"
+        "Q7) 객관식: str() 변환 후 다시 복원 가능한 경우",
+        "다음 중 **str()로 변환 후 다시 원래 타입으로 복원이 가능한 것**을 고르시오.",
+        hint="실수(float)는 복원이 가능합니다."
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) float( str(3.14) ) → float\n\n"
+        "2) bool( str(True) ) → bool\n\n"
+        "3) list( str([1, 2, 3]) ) → list\n\n"
+        "4) dict( str({'a': 1}) ) → dict"
+    ))
+
 def answer_q7(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "text.replace('python','java')"), "힌트: replace(기존,새로운)"))
+    def checker(ans):
+        a = ans.strip()
+        correct = "1"
+        return (a == correct,
+                "정답은 1) 입니다. float는 str()로 변환 후 다시 복원 가능합니다.")
+    result = _ask_until_correct(checker)
     if show_explanation:
-        explain_q7()
-    return ans
+        print("Q7 해설:")
+        print("1) float( str(3.14) ) ✅ 가능 → '3.14' → 3.14 (실수)")
+        print("2) bool( str(True) ) ❌ 'True'라는 문자열은 bool()로 직접 변환 불가, 모든 문자열은 True 처리됨")
+        print("3) list( str([1,2,3]) ) ❌ '[1, 2, 3]'은 문자열일 뿐 리스트가 아님 → 변환 불가")
+        print("4) dict( str({'a':1}) ) ❌ \"{'a':1}\"은 문자열 → dict()로 변환 불가")
+    return result
 
 # Q8. 기본형이 아닌 것 (객관식)
 def show_q8():
