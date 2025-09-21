@@ -347,17 +347,104 @@ def explain_q10():
 
 
 # =========================
-# 전체 해설 출력
+# 정답 + 해설 출력 유틸 (가독성 향상)
 # =========================
-def show_all_explanations():
-    explain_q1()
-    explain_q2()
-    explain_q3()
-    explain_q4()
-    explain_q5()
-    explain_q6()
-    explain_q7()
-    explain_q8()
-    explain_q9()
-    explain_q10()
-    print("\n✅ 모든 해설이 출력되었습니다.")
+from IPython.display import display, Markdown
+
+def _answer_key() -> dict[int, str]:
+    """문항별 정답 요약"""
+    return {
+        1: "s[0]",
+        2: "s[0:3]  (또는 s[:3])",
+        3: "1  (문자열은 불변)",
+        4: "16.5",
+        5: "2  (float)",
+        6: 'f"{city} has {rating} rating."  (또는 "{} has {} rating.".format(city, rating))',
+        7: "1  (float(str(3.14)) → float)",
+        8: "1  (list는 기본형이 아님)",
+        9: '3  (int("3.14")는 ValueError)',
+        10: "2  (apple apple banana)",
+    }
+
+def _explain_func_map():
+    """문항별 해설 함수 매핑 (기존 explain_qX 함수를 그대로 활용)"""
+    return {
+        1: explain_q1,
+        2: explain_q2,
+        3: explain_q3,
+        4: explain_q4,
+        5: explain_q5,
+        6: explain_q6,
+        7: explain_q7,
+        8: explain_q8,
+        9: explain_q9,
+        10: explain_q10,
+    }
+
+def _title_of(qnum: int) -> str:
+    """문항 제목 표시용"""
+    return f"### Q{qnum} 해설"
+
+def _render_block(title_md: str, answer_text: str | None):
+    """Jupyter 노트북에서는 Markdown으로, 콘솔에서는 print로 렌더링"""
+    try:
+        # Jupyter/Colab 환경: Markdown 렌더
+        body = []
+        body.append(title_md)
+        if answer_text is not None:
+            body.append(f"> **정답:** `{answer_text}`  \n")
+        display(Markdown("\n\n".join(body)))
+    except Exception:
+        # 콘솔 환경: 텍스트로 대체
+        print(title_md.replace("### ", "").replace("## ", ""))
+        if answer_text is not None:
+            print(f"[정답] {answer_text}")
+        print("-" * 50)
+
+def print_explanation(qnum: int, show_answer: bool = True):
+    """
+    특정 문항의 '정답 + 해설'을 보기 좋게 출력.
+    - show_answer=False 로 주면 해설만 출력.
+    """
+    answers = _answer_key()
+    explains = _explain_func_map()
+
+    if qnum not in explains:
+        print(f"Q{qnum} 은(는) 존재하지 않습니다. 1~{max(explains)} 사이로 입력하세요.")
+        return
+
+    # 블록 헤더 + 정답
+    ans_text = answers.get(qnum) if show_answer else None
+    _render_block(_title_of(qnum), ans_text)
+
+    # 실제 해설 실행
+    explains[qnum]()
+
+def show_all_explanations(show_answer: bool = True):
+    """
+    전체 문항의 '정답 + 해설'을 순서대로 출력.
+    - show_answer=False 로 주면 해설만 일괄 출력.
+    """
+    explains = _explain_func_map()
+    answers = _answer_key()
+
+    # 전체 헤더
+    try:
+        display(Markdown("## 📘 Week3 전체 해설"))
+    except Exception:
+        print("📘 Week3 전체 해설")
+        print("=" * 50)
+
+    for q in range(1, len(explains) + 1):
+        ans_text = answers.get(q) if show_answer else None
+        _render_block(_title_of(q), ans_text)
+        explains[q]()
+        try:
+            display(Markdown("---"))
+        except Exception:
+            print("-" * 50)
+
+    try:
+        display(Markdown("✅ **모든 해설이 출력되었습니다.**"))
+    except Exception:
+        print("✅ 모든 해설이 출력되었습니다.")
