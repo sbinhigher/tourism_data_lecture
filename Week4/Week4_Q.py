@@ -119,13 +119,24 @@ def answer_q3(show_explanation: bool = True):
 
 def show_q4():
     _panel(
-        "Q4) 주관식: range → list 변환",
-        "다음 range 객체를 리스트로 변환하여 출력하세요.",
-        code="r = range(2, 11, 2)\nprint(    )"
+        "Q4) 객관식: range → list 변환",
+        "다음 range 객체를 리스트로 변환했을 때, 출력 결과로 올바른 것은?",
+        code="r = range(2, 11, 2)\nprint(list(r))"
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) [1, 3, 5, 7, 9, 11]\n\n"
+        "2) [2, 4, 6, 8, 10]\n\n"
+        "3) [2, 5, 8, 11]\n\n"
+        "4) [1, 4, 7, 10]"
+    ))
+
 def answer_q4(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "list(r)"), "예: list(r)"))
-    if show_explanation: explain_q4()
+    ans = _ask_until_correct(
+        lambda s: (_matches_any(s, "2", "[2, 4, 6, 8, 10]"), "정답은 2) [2, 4, 6, 8, 10] 입니다.")
+    )
+    if show_explanation:
+        explain_q4()
     return ans
 
 def show_q5():
@@ -158,18 +169,24 @@ def answer_q6(show_explanation: bool = True):
 
 def show_q7():
     _panel(
-        "Q7) 주관식: 안전 삭제 discard",
-        '"rabbit" 을 안전하게 삭제하고 결과를 출력하세요.',
-        code='animals = {"cat", "dog"}\nprint(animals)'
+        "Q7) 객관식: 딕셔너리의 구성 요소",
+        "다음 중 **딕셔너리의 구성 요소가 아닌 것**은 무엇일까요?",
+        code='info = {"이름": "홍길동", "나이": 30, "학과": "데이터사이언스"}'
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) 키(key)\n\n"
+        "2) 값(value)\n\n"
+        "3) 인덱스(index)\n\n"
+        "4) 항목(item)"
+    ))
+
 def answer_q7(show_explanation: bool = True):
-    def checker(line):
-        ns = {"animals": {"cat", "dog"}}
-        try: exec(line, {}, ns)
-        except Exception as e: return (False, f"실행 에러: {e}")
-        return (True, "")
-    ans = _ask_until_correct(checker)
-    if show_explanation: explain_q7()
+    ans = _ask_until_correct(
+        lambda s: (_matches_any(s, "3", "인덱스"), "정답은 3) 인덱스(index) 입니다.")
+    )
+    if show_explanation:
+        explain_q7()
     return ans
 
 def show_q8():
@@ -221,10 +238,20 @@ def explain_q2():
     print("- tensor[1][0]        → [7, 8, 9]                   (그 층의 첫 번째 '행')")
     print("- tensor[1][0][1:]    → [8, 9]                      (그 행의 인덱스 1부터 끝까지)")
 def explain_q3(): print("Q3 해설: 튜플은 불변이라 t[1]=5는 오류")
-def explain_q4(): print("Q4 해설: range 객체는 list()로 변환해야 원소 출력")
+def explain_q4():
+    print("Q4 해설:")
+    print("range(2, 11, 2)는 2부터 시작해 11 직전까지 2씩 증가하는 수열을 만듭니다.")
+    print("→ 2, 4, 6, 8, 10")
+    print("따라서 list(r)의 결과는 [2, 4, 6, 8, 10] 입니다.")
 def explain_q5(): print("Q5 해설: fruits.add('orange') 로 원소 추가")
 def explain_q6(): print("Q6 해설: & 는 교집합, 결과는 {'b','c'}")
-def explain_q7(): print("Q7 해설: discard는 원소 없어도 오류 없음")
+def explain_q7():
+    print("Q7 해설:")
+    print("딕셔너리(dict)는 키(key)와 값(value)의 쌍으로 구성됩니다.")
+    print("- 키(key): 항목을 식별하는 고유값")
+    print("- 값(value): 키에 대응하는 데이터")
+    print("- 항목(item): (키, 값) 쌍 전체")
+    print("❌ 인덱스(index)는 리스트나 튜플처럼 순서형 자료에서 사용하는 개념이지, 딕셔너리의 구성 요소가 아닙니다.")
 def explain_q8(): print("Q8 해설: student['email']='...' 으로 추가")
 def explain_q9(): print("Q9 해설: get(key,default) → 없으면 'N/A'")
 def explain_q10(): print("Q10 해설: tuple은 수정 불가, 나머지는 맞음")
