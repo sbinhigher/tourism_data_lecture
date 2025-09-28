@@ -169,26 +169,26 @@ def answer_q6(show_explanation: bool = True):
 
 def show_q7():
     _panel(
-        "Q7) 객관식: 딕셔너리의 구성 요소",
-        "다음 중 **딕셔너리의 구성 요소가 아닌 것**은 무엇일까요?",
-        code='info = {"이름": "홍길동", "나이": 30, "학과": "데이터사이언스"}'
+        "Q7) 객관식: 딕셔너리 요소 연결",
+        "다음 중 **알맞게 연결되지 않은 것**은 무엇일까요?",
+        code='info = {"이름": "홍길동", "나이": 30, "학과": "데이터사이언스"}\n'
+
     )
     display(Markdown(
         "보기\n\n"
-        "1) 키(key)\n\n"
-        "2) 값(value)\n\n"
-        "3) 인덱스(index)\n\n"
-        "4) 항목(item)"
+        "1) info.keys() → ['이름','나이','학과']\n\n"
+        "2) info.values() → ['홍길동', 30, '데이터사이언스']\n\n"
+        "3) info.items() → [('이름','홍길동'), ('나이',30), ('학과','데이터사이언스')]\n\n"
+        "4) info.index() → [0,1,2]"
     ))
 
 def answer_q7(show_explanation: bool = True):
     ans = _ask_until_correct(
-        lambda s: (_matches_any(s, "3", "인덱스"), "정답은 3) 인덱스(index) 입니다.")
+        lambda s: (_matches_any(s, "4", "info.index()", "index"), "정답은 4) info.index() 입니다.")
     )
     if show_explanation:
         explain_q7()
     return ans
-
 def show_q8():
     _panel(
         "Q8) 주관식: 딕셔너리에 키-값 추가",
@@ -247,10 +247,10 @@ def explain_q5(): print("Q5 해설: fruits.add('orange') 로 원소 추가")
 def explain_q6(): print("Q6 해설: & 는 교집합, 결과는 {'b','c'}")
 def explain_q7():
     print("Q7 해설:")
-    print("딕셔너리(dict)는 키(key)와 값(value)의 쌍으로 구성됩니다.")
-    print("- 키(key): 항목을 식별하는 고유값")
-    print("- 값(value): 키에 대응하는 데이터")
-    print("- 항목(item): (키, 값) 쌍 전체")
+    print("1) info.keys() ✅ 올바름 → 키들의 목록 ['이름','나이','학과']")
+    print("2) info.values() ✅ 올바름 → 값들의 목록 ['홍길동', 30, '데이터사이언스']")
+    print("3) info.items() ✅ 올바름 → (키, 값) 쌍들의 목록 [('이름','홍길동'), ('나이',30), ('학과','데이터사이언스')]")
+    print("4) info.index() ❌ 틀림 → 딕셔너리에는 index() 메서드가 없습니다. 인덱스는 리스트·튜플 등 순서형 자료에서만 사용됩니다.")
     print("❌ 인덱스(index)는 리스트나 튜플처럼 순서형 자료에서 사용하는 개념이지, 딕셔너리의 구성 요소가 아닙니다.")
 def explain_q8(): print("Q8 해설: student['email']='...' 으로 추가")
 def explain_q9(): print("Q9 해설: get(key,default) → 없으면 'N/A'")
@@ -269,10 +269,10 @@ def _answer_key():
         1: "list(set(nums))",
         2: "1. [8, 9]",
         3: "t[1] = 5",
-        4: "list(r)",
+        4: "2. [2,4,6,8,10]",
         5: "fruits.add('orange')",
         6: "{'b', 'c'}",
-        7: "animals.discard('rabbit')",
+        7: "4, 4) info.index() → [0,1,2]",
         8: "student['email'] = 'lee@example.com'",
         9: "'N/A'",
         10:"2 (tuple은 수정 불가)"
