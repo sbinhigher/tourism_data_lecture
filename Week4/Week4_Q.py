@@ -78,14 +78,31 @@ def answer_q1(show_explanation: bool = True):
 
 def show_q2():
     _panel(
-        "Q2) 객관식: 다차원 인덱싱/슬라이싱",
-        "다음에서 `matrix[1][0:2]` 의 결과를 고르세요.",
-        code="matrix = [[10, 20], [30, 40], [50, 60]]"
+        "Q2) 객관식: 3차원 인덱싱/슬라이싱",
+        "다음에서 `tensor[1][0][1:]` 의 결과를 고르세요.",
+        code=(
+            "tensor = [\n"
+            "  [[1, 2, 3], [4, 5, 6]],\n"
+            "  [[7, 8, 9], [10, 11, 12]]\n"
+            "]"
+        )
     )
-    display(Markdown("1) 20\n\n2) [30, 40]\n\n3) 50\n\n4) [10, 20]"))
+    display(Markdown(
+        "보기\n\n"
+        "1) [8, 9]\n\n"
+        "2) 8\n\n"
+        "3) [7, 8]\n\n"
+        "4) [10, 11, 12]"
+    ))
+
 def answer_q2(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "[30, 40]"), "정답은 2) [30, 40] 입니다."))
-    if show_explanation: explain_q2()
+    # 정답: 1) [8, 9]
+    ans = _ask_until_correct(
+        lambda s: (_matches_any(s, "1", "[8, 9]", "[8,9]"),
+                   "정답은 1) [8, 9] 입니다.")
+    )
+    if show_explanation:
+        explain_q2()
     return ans
 
 def show_q3():
@@ -198,7 +215,11 @@ def answer_q10(show_explanation: bool = True):
 # 해설 함수 (생략하지 않고 그대로)
 # =========================
 def explain_q1(): print("Q1 해설: list(set(nums)) 로 중복 제거 후 리스트 변환")
-def explain_q2(): print("Q2 해설: matrix[1] = [30,40], [0:2] → [30,40]")
+def explain_q2():
+    print("Q2 해설: 3차원 인덱싱/슬라이싱")
+    print("- tensor[1]           → [[7, 8, 9], [10, 11, 12]]  (두 번째 '층')")
+    print("- tensor[1][0]        → [7, 8, 9]                   (그 층의 첫 번째 '행')")
+    print("- tensor[1][0][1:]    → [8, 9]                      (그 행의 인덱스 1부터 끝까지)")
 def explain_q3(): print("Q3 해설: 튜플은 불변이라 t[1]=5는 오류")
 def explain_q4(): print("Q4 해설: range 객체는 list()로 변환해야 원소 출력")
 def explain_q5(): print("Q5 해설: fruits.add('orange') 로 원소 추가")
@@ -219,7 +240,7 @@ def show_all_explanations(show_answer=True):
 def _answer_key():
     return {
         1: "list(set(nums))",
-        2: "[30, 40]",
+        2: "1. [8, 9]",
         3: "t[1] = 5",
         4: "list(r)",
         5: "fruits.add('orange')",
