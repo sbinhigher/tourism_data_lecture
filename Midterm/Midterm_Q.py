@@ -52,165 +52,194 @@ def _ask_until_correct(checker, prompt="> "):
             print(f"{WRONG_ICON} {msg} 다시 시도하세요。\n")
 
 # =========================
-# Week4 과제: 컬렉션형 (Q1~Q10)
+# Midterm 시험 문제 : show_qN()
 # =========================
-# --- Q1 ---
 def show_q1():
-    _panel(
-        "Q1",
-        "다음 중 변수(Variable)에 대한 설명으로 틀린 것은?\n보기\n1) 변수명에는 알파벳, 숫자, 밑줄(_), 한글 등을 사용할 수 있다\n2) 변수명은 숫자로 시작할 수 없다\n3) 공백이나 특수문자는 변수명으로 사용할 수 없다\n4) for나 True 같은 예약어도 변수명으로 사용할 수 있다\n5) 여러 변수를 동시에 할당할 수 있다",
-    )
+    _panel("Q1", "다음 중 변수(Variable)에 대한 설명으로 틀린 것은?")
+    display(Markdown(
+        "보기\n\n"
+        "1) 변수명에는 알파벳, 숫자, 밑줄(_), 한글 등을 사용할 수 있다\n\n"
+        "2) 변수명은 숫자로 시작할 수 없다\n\n"
+        "3) 공백이나 특수문자는 변수명으로 사용할 수 없다\n\n"
+        "4) for나 True 같은 예약어도 변수명으로 사용할 수 있다\n\n"
+        "5) 여러 변수를 동시에 할당할 수 있다"
+    ))
+
+def show_q2():
+    _panel("Q2", "다음 코드를 실행했을 때, 결과는?", code='print(10+"20")')
+    display(Markdown(
+        "보기\n\n"
+        "1) 30\n\n"
+        "2) \"1020\"\n\n"
+        "3) 1020\n\n"
+        "4) Error 발생"
+    ))
+
+def show_q3():
+    _panel("Q3", "다음 중 정수와 실수의 덧셈 결과 타입으로 옳은 것은?")
+    display(Markdown(
+        "보기\n\n"
+        "1) int\n\n"
+        "2) float\n\n"
+        "3) str\n\n"
+        "4) bool"
+    ))
+
+def show_q4():
+    _panel("Q4", "다음 표현식의 결과로 옳은 것은?", code="0.1 + 0.2 == 0.3")
+    display(Markdown(
+        "보기\n\n"
+        "1) True\n\n"
+        "2) False"
+    ))
+
+def show_q5():
+    _panel("Q5", "아래 코드를 실행했을 때, 출력이 \"AB\"가 되도록 ?에 들어갈 구문을 작성하시오.",
+           code='a = "A"\nb = "B"\nprint(?)\n-----\nAB')
+
+def show_q6():
+    _panel("Q6", "다음 중 문자열 리터럴로 올바른 것은 모두 고르시오.")
+    display(Markdown(
+        "보기\n\n"
+        "1) '10'\n\n"
+        "2) \"Hello\"\n\n"
+        "3) 10\n\n"
+        "4) True"
+    ))
+
+def show_q7():
+    _panel("Q7", "다음 중 변수명으로 사용할 수 없는 것은?")
+    display(Markdown(
+        "보기\n\n"
+        "1) _score\n\n"
+        "2) value2\n\n"
+        "3) 2value\n\n"
+        "4) 변수"
+    ))
+
+def show_q8():
+    _panel("Q8", "다음 중 예약어(변수명으로 사용 불가)에 해당하는 것은?")
+    display(Markdown(
+        "보기\n\n"
+        "1) print\n\n"
+        "2) True\n\n"
+        "3) number\n\n"
+        "4) hello"
+    ))
+
+def show_q9():
+    _panel("Q9", "다음 코드의 출력 결과로 옳은 것은?", code='print("A", "B")')
+    display(Markdown(
+        "보기\n\n"
+        "1) A B\n\n"
+        "2) AB\n\n"
+        "3) \"A B\"\n\n"
+        "4) A, B"
+    ))
+
+def show_q10():
+    _panel("Q10", "다음 중 print에서 여러 값을 출력할 때 값 사이에 들어갈 구분자를 지정하는 파라미터 이름은?")
+    display(Markdown(
+        "보기\n\n"
+        "1) sep\n\n"
+        "2) end\n\n"
+        "3) seq\n\n"
+        "4) delimiter\n\n"
+        "5) split"
+    ))
+
+def show_q11():
+    _panel("Q11", "아래 한 줄을 완성하여, 문자열 \"10\"을 정수 10으로 변환하시오.",
+           code='__________("10")')
+
+def show_q12():
+    _panel("Q12", "다음 표현식의 결과로 옳은 것은?", code="type(10) == type(10.0)")
+    display(Markdown(
+        "보기\n\n"
+        "1) True\n\n"
+        "2) False"
+    ))
+
+# =========================
+# 답안 : answer_qN()
+# =========================
+
 def answer_q1(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "4", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q1()
     return ans
-def explain_q1(): pass
 
-# --- Q2 ---
-def show_q2():
-    _panel(
-        "Q2",
-        "다음 코드를 실행했을 때, 결과는?\nprint(10+\"20\")\n보기\n1) 30\n2) \"1020\"\n3) 1020\n4) Error 발생",
-    )
 def answer_q2(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "4", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q2()
     return ans
-def explain_q2(): pass
 
-# --- Q3 ---
-def show_q3():
-    _panel(
-        "Q3",
-        "다음 중 정수와 실수의 덧셈 결과 타입으로 옳은 것은?\n보기\n1) int\n2) float\n3) str\n4) bool",
-    )
 def answer_q3(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "2", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q3()
     return ans
-def explain_q3(): pass
 
-# --- Q4 ---
-def show_q4():
-    _panel(
-        "Q4",
-        "다음 표현식의 결과로 옳은 것은?\n0.1 + 0.2 == 0.3\n보기\n1) True\n2) False",
-    )
 def answer_q4(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "2", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q4()
     return ans
-def explain_q4(): pass
 
-# --- Q5 ---
-def show_q5():
-    _panel(
-        "Q5",
-        "아래 코드를 실행했을 때, 출력이 \"AB\"가 되도록 ?에 들어갈 구문을 작성하시오.",
-        code='a = "A"\nb = "B"\nprint(?)\n-----\nAB',
-    )
 def answer_q5(show_explanation: bool = True):
-    a = "A"
-    b = "B"
+    a = "A"; b = "B"
     def checker(src):
         try:
-            expr = src
-            result = eval(expr, {}, {"a": a, "b": b})
+            result = eval(src, {}, {"a": a, "b": b})
         except Exception:
             return (False, "")
         return (result == "AB", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q5()
     return ans
-def explain_q5(): pass
 
-# --- Q6 ---
-def show_q6():
-    _panel(
-        "Q6",
-        "다음 중 문자열 리터럴로 올바른 것은 모두 고르시오.\n보기\n1) '10'\n2) \"Hello\"\n3) 10\n4) True",
-    )
 def answer_q6(show_explanation: bool = True):
     def checker(src):
         tokens = [t for t in src.replace(",", " ").split() if t]
-        ok = set(tokens) == {"1", "2"} and len(tokens) == 2
-        return (ok, "")
+        return (set(tokens) == {"1", "2"} and len(tokens) == 2, "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q6()
     return ans
-def explain_q6(): pass
 
-# --- Q7 ---
-def show_q7():
-    _panel(
-        "Q7",
-        "다음 중 변수명으로 사용할 수 없는 것은?\n보기\n1) _score\n2) value2\n3) 2value\n4) 변수",
-    )
 def answer_q7(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "3", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q7()
     return ans
-def explain_q7(): pass
 
-# --- Q8 ---
-def show_q8():
-    _panel(
-        "Q8",
-        "다음 중 예약어(변수명으로 사용 불가)에 해당하는 것은?\n보기\n1) print\n2) True\n3) number\n4) hello",
-    )
 def answer_q8(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "2", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q8()
     return ans
-def explain_q8(): pass
 
-# --- Q9 ---
-def show_q9():
-    _panel(
-        "Q9",
-        "다음 코드의 출력 결과로 옳은 것은?\nprint(\"A\", \"B\")\n보기\n1) A B\n2) AB\n3) \"A B\"\n4) A, B",
-    )
 def answer_q9(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "1", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q9()
     return ans
-def explain_q9(): pass
 
-# --- Q10 ---
-def show_q10():
-    _panel(
-        "Q10",
-        "다음 중 print에서 여러 값을 출력할 때 값 사이에 들어갈 구분자를 지정하는 파라미터 이름은?\n보기\n1) sep\n2) end\n3) seq\n4) delimiter\n5) split",
-    )
 def answer_q10(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "1", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q10()
     return ans
-def explain_q10(): pass
 
-# --- Q11 ---
-def show_q11():
-    _panel(
-        "Q11",
-        "아래 한 줄을 완성하여, 문자열 \"10\"을 정수 10으로 변환하시오.",
-        code="__________(\"10\")",
-    )
 def answer_q11(show_explanation: bool = True):
     def checker(src):
         s = src.strip()
@@ -222,24 +251,17 @@ def answer_q11(show_explanation: bool = True):
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q11()
     return ans
-def explain_q11(): pass
 
-# --- Q12 ---
-def show_q12():
-    _panel(
-        "Q12",
-        "다음 표현식의 결과로 옳은 것은?\ntype(10) == type(10.0)\n보기\n1) True\n2) False",
-    )
 def answer_q12(show_explanation: bool = True):
     def checker(src):
         return (src.strip() == "2", "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q12()
     return ans
-def explain_q12(): pass
+
 
 # =========================
-# 해설 함수 (생략하지 않고 그대로)
+# 해설 함수 : explain_qN()
 # =========================
 def explain_q1():
     print("Q1 해설: 예약어(for, True 등)는 변수명으로 사용할 수 없습니다.")
