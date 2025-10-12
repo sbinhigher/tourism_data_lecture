@@ -149,8 +149,11 @@ def show_q10():
     ))
 
 def show_q11():
-    _panel("Q11", "아래 한 줄을 완성하여, 문자열 \"10\"을 정수 10으로 변환하시오.",
-           code='__________("10")')
+    _panel(
+        "Q11",
+        "다음 출력 결과가 <class 'float'>이 되도록 코드를 작성하시오.",
+        code="a = 3.14\nprint(    )"
+    )
 
 def show_q12():
     _panel("Q12", "다음 표현식의 결과로 옳은 것은?", code="type(10) == type(10.0)")
@@ -537,16 +540,18 @@ def answer_q10(show_explanation: bool = True):
     return ans
 
 def answer_q11(show_explanation: bool = True):
+    a = 3.14
     def checker(src):
-        s = src.strip()
         try:
-            result = eval(f"{s}('10')", {}, {})
+            result = eval(src, {}, {"a": a})
         except Exception:
             return (False, "")
-        return (result == 10, "")
+        return (result is float, "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q11()
+    if show_explanation:
+        explain_q11()
     return ans
+
 
 def answer_q12(show_explanation: bool = True):
     def checker(src):
@@ -780,8 +785,8 @@ def explain_q10():
     print('예: print("A","B", sep="-") → A-B')
 
 def explain_q11():
-    print('Q11 해설: 문자열 "10"을 정수 10으로 변환하려면 int 함수를 사용합니다.')
-    print('예: int("10") → 10')
+    print("Q11 해설:")
+    print("type(a)는 변수 a의 자료형을 반환합니다. a=3.14 이므로 <class 'float'>가 출력됩니다.")
 
 def explain_q12():
     print("Q12 해설: type(10)은 int, type(10.0)은 float이므로 두 타입은 다릅니다.")
