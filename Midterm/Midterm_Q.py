@@ -275,9 +275,17 @@ def show_q21():
 def show_q22():
     _panel(
         "Q22",
-        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
-        code='print("  hi  ".strip())'
+        "다음 선택지 중 다른 결과가 나오는 코드를 고르시오.",
+        code="s = 'Python'"
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) print(s[:2].upper())\n\n"
+        "2) print(s.upper() - s.upper()[2:4])\n\n"
+        "3) print(s[0] + s[1].upper())\n\n"
+        "4) print(s.replace('Py', 'PY')[0:2])"
+    ))
+
 
 def show_q23():
     _panel(
@@ -632,12 +640,9 @@ def answer_q21(show_explanation: bool = True):
     return ans
 
 def answer_q22(show_explanation: bool = True):
-    # 예상 맥락: "  hi  ".strip() 의 결과
-    def checker(src):
-        val = src.strip().strip('"').strip("'")
-        return (val == "hi", "")
-    ans = _ask_until_correct(checker)
-    if show_explanation: explain_q22()
+    ans = _ask_until_correct(lambda s: (s.strip() == "2", ""))
+    if show_explanation:
+        explain_q22()
     return ans
 
 def answer_q23(show_explanation: bool = True):
@@ -848,8 +853,10 @@ def explain_q21():
     print("float('12.0') 은 정상 변환됩니다.")
 
 def explain_q22():
-    print("strip()은 양쪽 공백 제거입니다. '  hi  '→'hi'가 됩니다.")
-
+    print("Q22 해설:")
+    print("1), 3), 4)는 모두 'PY'를 출력합니다.")
+    print("2)는 문자열끼리 뺄셈 연산을 시도하여 TypeError가 발생하므로 다른 결과입니다.")
+    
 def explain_q23():
     print("슬라이스 치환은 끝 인덱스를 포함하지 않습니다.")
     print("a[1:4] 구간(1,2,3)을 [9,9]로 바꿔서 [0,9,9,4]가 됩니다.")
