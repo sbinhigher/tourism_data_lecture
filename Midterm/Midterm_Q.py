@@ -674,9 +674,10 @@ def answer_q28(show_explanation: bool = True):
 
 def answer_q29(show_explanation: bool = True):
     def checker(src):
-        return (src.strip() == "'N/A'", "")
+        return (src.strip() == "N/A", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q29()
+    if show_explanation:
+        explain_q29()
     return ans
 
 def answer_q30(show_explanation: bool = True):
@@ -861,8 +862,8 @@ def explain_q28():
     print("따라서 [2,4,6] 입니다.")
 
 def explain_q29():
-    print("get('z','N/A')는 키가 없으면 기본값을 반환합니다.")
-    print("z가 없으므로 'N/A'가 출력됩니다.")
+    print("d.get('z', 'N/A') 는 키가 없을 때 기본값을 반환합니다.")
+    print("print(...) 의 실제 출력에는 따옴표가 포함되지 않습니다. → N/A")
 
 def explain_q30():
     print("집합은 중복을 제거합니다.")
@@ -901,6 +902,7 @@ def show_all_explanations(show_answer=True):
         _explain_func_map()[i]()
     print("\n✅ 모든 해설 출력 완료")
 
+# ...기존 키 유지, 29번만 교체
 def _answer_key():
     return {
         1: "4",
@@ -915,29 +917,29 @@ def _answer_key():
         10: "1",
         11: "int",
         12: "2",
-        13: "3",                         # 2 ** 3 → 8
+        13: "3",
         14: "Pyt",
         15: "bbbaab",
-        16: "2",                         # type(10 + 10.0) → float
+        16: "2",
         17: "6.0",
-        18: "4",                         # 결과가 다른 것은? → 4번
+        18: "4",
         19: "2",
         20: "1",
         21: "3",
         22: "hi",
         23: "1",
-        24: "1",                         # A.union(B) - C
+        24: "1",
         25: "2 4",
-        26: "3",                         # dict keys/values/items 객관식
+        26: "3",
         27: "1",
         28: "2",
-        29: "'N/A'",
+        29: "N/A",
         30: "1",
-        31: "4",                         # set에 없는 함수 → append
+        31: "4",
         32: "1 2 5",
-        33: "4",                         # 컬렉션 아님 → int
+        33: "4",
         34: "1",
-        35: "list(set(nums))",           # 형식 고정
+        35: "list(set(nums))",
     }
 
 
