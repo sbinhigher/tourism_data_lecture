@@ -151,9 +151,10 @@ def show_q10():
 def show_q11():
     _panel(
         "Q11",
-        "다음 출력 결과가 <class 'float'>이 되도록 코드를 작성하시오.",
-        code="a = 3.14\nprint(    )"
+        "다음 출력 결과가 정수가 되도록, print 내부의 코드를 작성하시오.",
+        code="s = '10'\nprint(    )"
     )
+
 
 def show_q12():
     _panel("Q12", "다음 표현식의 결과로 옳은 것은?", code="type(10) == type(10.0)")
@@ -171,9 +172,9 @@ def show_q13():
     )
     display(Markdown(
         "보기\n\n"
-        "1) +\n\n"
-        "2) *\n\n"
-        "3) **\n\n"
+        "1) \\+\n\n"
+        "2) \\*\n\n"
+        "3) \\*\\*\n\n"
         "4) <<"
     ))
 
@@ -540,18 +541,25 @@ def answer_q10(show_explanation: bool = True):
     return ans
 
 def answer_q11(show_explanation: bool = True):
-    a = 3.14
+    s = "10"
     def checker(src):
+        ns = {"s": s}
         try:
-            result = eval(src, {}, {"a": a})
+            # 변수 s를 사용했는지 확인(리터럴 '10' 하드코딩 금지)
+            if "'10'" in src or '"10"' in src:
+                return (False, "")
+            val = eval(src, {}, ns)
         except Exception:
             return (False, "")
-        return (result is float, "")
+        ok = (isinstance(val, int) and val == 10)
+        # 정답은 변수 s를 이용한 정수 변환만 인정
+        # 공백을 무시하고 정확히 int(s) 형태만 허용
+        form_ok = "".join(src.split()) == "int(s)"
+        return (ok and form_ok, "")
     ans = _ask_until_correct(checker)
     if show_explanation:
         explain_q11()
     return ans
-
 
 def answer_q12(show_explanation: bool = True):
     def checker(src):
@@ -786,7 +794,9 @@ def explain_q10():
 
 def explain_q11():
     print("Q11 해설:")
-    print("type(a)는 변수 a의 자료형을 반환합니다. a=3.14 이므로 <class 'float'>가 출력됩니다.")
+    print("문자열로 된 숫자를 정수로 변환할 때는 int()를 사용합니다.")
+    print("s = '10' 이므로 int(s) 는 10을 반환합니다.")
+
 
 def explain_q12():
     print("Q12 해설: type(10)은 int, type(10.0)은 float이므로 두 타입은 다릅니다.")
