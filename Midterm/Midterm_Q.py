@@ -163,9 +163,17 @@ def show_q12():
 def show_q13():
     _panel(
         "Q13",
-        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
-        code='s = "Python"\nprint(s[0])'
+        "아래 코드를 실행했을 때, 출력이 8이 되도록 ?에 들어갈 구문을 고르시오.",
+        code="a = 2\nb = 3\nprint(a ? b)\n-----\n8"
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) +\n\n"
+        "2) *\n\n"
+        "3) **\n\n"
+        "4) <<"
+    ))
+
 
 def show_q14():
     _panel(
@@ -177,74 +185,79 @@ def show_q14():
 def show_q15():
     _panel(
         "Q15",
-        "다음 표현식의 계산 결과로 옳은 것을 고르시오."
+        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
+        code='print("aaaaab".replace("a","b",3))'
     )
-    display(Markdown(
-        "보기\n\n"
-        "1) 11\n\n"
-        "2) 12\n\n"
-        "3) 9\n\n"
-        "4) 10"
-    ))
-    display(Markdown("식\n\n3 + 5*2 - 4/2"))
 
 def show_q16():
     _panel(
         "Q16",
-        "문자열 \"3.14\"를 실수 3.14로 변환하도록, 빈칸에 들어갈 함수를 한 단어로 쓰시오.",
-        code='print(______("3.14"))'
+        "다음 중 올바른 설명을 고르시오."
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) \"abc\"[0] = 'a' 는 정상 동작한다\n\n"
+        "2) type(10 + 10.0) 는 float 이다\n\n"
+        "3) 인덱싱은 1부터 시작한다\n\n"
+        "4) \"x\".append('y') 는 문자열에 원소를 추가한다"
+    ))
+
 
 def show_q17():
     _panel(
         "Q17",
-        "다음 코드의 평가 결과로 옳은 것을 고르시오.",
-        code='"10".isdigit()'
+        "다음 코드를 실행했을 때, 계산 결과를 숫자로 정확히 쓰시오.",
+        code="a=9\nb=5\nc=2\nd=3.0\nexpr=(a//c)+(b%c)-d+2**c\nprint(expr)"
     )
-    display(Markdown(
-        "보기\n\n"
-        "1) True\n\n"
-        "2) False"
-    ))
+
 
 def show_q18():
     _panel(
         "Q18",
-        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
-        code='print("aaaa".replace("a", "b", 2))'
+        "다음 변수를 사용하여 아래와 같은 문자열을 출력하는 코드를 작성하시오.\n목표 출력: Seoul: 27.5C, Humidity 60%",
+        code="city='Seoul'\ntemp=27.5\nh=60\nprint(    )"
     )
+
 
 def show_q19():
     _panel(
         "Q19",
-        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
-        code='print("abcde"[::-1])'
+        "다음 중 str(...)로 문자열화한 뒤 원래 값과 동일하게 복원되는 식을 고르시오."
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) int(str(3.14))\n\n"
+        "2) float(str(3.14))\n\n"
+        "3) bool(str(False))\n\n"
+        "4) dict(str({'a':1}))"
+    ))
+
 
 def show_q20():
     _panel(
         "Q20",
-        "다음 코드의 평가 결과로 옳은 것을 고르시오.",
-        code='"Python".find("th")'
+        "다음 중 기본형이 아닌 것을 고르시오."
     )
     display(Markdown(
         "보기\n\n"
-        "1) 0\n\n"
-        "2) 1\n\n"
-        "3) 2\n\n"
-        "4) -1"
+        "1) set\n\n"
+        "2) int\n\n"
+        "3) str\n\n"
+        "4) bool"
     ))
+
 
 def show_q21():
     _panel(
         "Q21",
-        "다음 코드의 평가 결과로 옳은 것을 고르시오.",
-        code='int(float("10.0")) == 10'
+        "다음 중 숫자형 변환 함수 적용 시 에러가 나는 것을 고르시오."
     )
     display(Markdown(
         "보기\n\n"
-        "1) True\n\n"
-        "2) False"
+        "1) int(\"  -12  \")\n\n"
+        "2) float(\"12.0\")\n\n"
+        "3) int(\"12.0\")\n\n"
+        "4) float(\" 12 \")"
     ))
 
 def show_q22():
@@ -271,14 +284,15 @@ def show_q23():
 def show_q24():
     _panel(
         "Q24",
-        "집합 A={1,2,3}, B={3,4} 일 때 A ^ B 의 결과로 옳은 것을 고르시오."
+        "다음 코드의 실행 결과로 옳은 것을 고르시오.",
+        code="A = {1,2,3}\nB = {3,4}\nC = {4,5,6}\nprint(A.union(B) - C)"
     )
     display(Markdown(
         "보기\n\n"
-        "1) {3}\n\n"
-        "2) {1,2,4}\n\n"
-        "3) {1,2,3,4}\n\n"
-        "4) {1,2}"
+        "1) {1, 2, 3}\n\n"
+        "2) {1, 2}\n\n"
+        "3) {1, 2, 3, 3}\n\n"
+        "4) {1, 2, 4}"
     ))
 
 def show_q25():
@@ -298,9 +312,23 @@ def show_q25():
 def show_q26():
     _panel(
         "Q26",
-        "다음 코드를 실행했을 때, 출력 값을 정확히 쓰시오.",
-        code="x = {'a':1, 'b':2}\nx.update({'b':5, 'c':9})\nprint(x)"
+        "다음 코드를 실행한 후, 올바른 출력이 되는 것을 모두 고르시오.",
+        code=(
+            "person = {\"name\": \"Alice\", \"age\": 25, \"city\": \"Seoul\"}\n"
+            "person[\"name\"] = \"James\"\n"
+            "person[\"job\"] = \"Engineer\"\n"
+            "person[\"age\"] = 30\n"
+            "del person[\"city\"]\n"
+            "# 최종 person: {'name': 'James', 'age': 30, 'job': 'Engineer'}"
+        )
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) print(person.keys())    → dict_keys(['name', 'age', 'job', 'city'])\n\n"
+        "2) print(person.values())  → dict_values(['James', 30, 'Engineer', 'N/A'])\n\n"
+        "3) print(person.items())   → dict_items([('name', 'James'), ('age', 30), ('job', 'Engineer')])\n\n"
+        "4) print(person)           → {'name': ['Alice', 'James'], 'age': [25, 30], 'job': ['N/A', 'Engineer']}"
+    ))
 
 def show_q27():
     _panel(
@@ -340,7 +368,7 @@ def show_q29():
 def show_q30():
     _panel(
         "Q30",
-        "다음 중 집합 s = {1,2,2,3} 의 길이로 옳은 것을 고르시오."
+        "다음 중 집합 s = {1,2,2,3} 의 길이(요소의 개수)로 옳은 것을 고르시오."
     )
     display(Markdown(
         "보기\n\n"
@@ -353,9 +381,15 @@ def show_q30():
 def show_q31():
     _panel(
         "Q31",
-        "아래 코드를 실행했을 때, student 딕셔너리에 email 키를 추가하도록 ?에 들어갈 한 줄을 작성하시오.",
-        code="student = {'name':'Kim', 'id':1001}\n?\nprint('email' in student)"
+        "다음 중 set에 활용될 수 없는 함수를 고르시오."
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) add\n\n"
+        "2) remove\n\n"
+        "3) discard\n\n"
+        "4) append"
+    ))
 
 def show_q32():
     _panel(
@@ -472,12 +506,11 @@ def answer_q12(show_explanation: bool = True):
     return ans
 
 def answer_q13(show_explanation: bool = True):
-    # 예상 맥락: s = "Python" 에서 s[0]의 값
     def checker(src):
-        val = src.strip().strip('"').strip("'")
-        return (val == "P", "")
+        return (src.strip() == "3", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q13()
+    if show_explanation:
+        explain_q13()
     return ans
 
 def answer_q14(show_explanation: bool = True):
@@ -490,77 +523,57 @@ def answer_q14(show_explanation: bool = True):
     return ans
 
 def answer_q15(show_explanation: bool = True):
-    # 예상 맥락: 3 + 5*2 - 4/2 의 결과
     def checker(src):
-        s = src.strip()
-        try:
-            n = float(s) if "." in s else int(s)
-        except Exception:
-            return (False, "")
-        return (n == 11, "")
+        val = src.strip().strip('"').strip("'")
+        return (val == "bbbaab", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q15()
+    if show_explanation:
+        explain_q15()
     return ans
 
 def answer_q16(show_explanation: bool = True):
-    # 예상 맥락: 문자열 "3.14"를 실수로 변환하는 함수 이름
-    def checker(src):
-        s = "".join(src.split()).lower()
-        try:
-            ok = (eval(f"{s}('3.14')", {}, {}) == 3.14)
-        except Exception:
-            return (False, "")
-        return (ok, "")
-    ans = _ask_until_correct(checker)
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "type(10 + 10.0) 는 float 이다"), "정답은 2번입니다."))
     if show_explanation: explain_q16()
     return ans
 
+
 def answer_q17(show_explanation: bool = True):
-    # 예상 맥락: "10".isdigit() 평가 결과
-    def checker(src):
-        s = src.strip().lower()
-        return (s in ("true", "t"), "")
+    def checker(s):
+        expected = (9 // 2) + (5 % 2) - 3.0 + 2**2  # 6.0
+        try:
+            return (float(s.strip()) == expected, f"정답은 {expected} 입니다.")
+        except:
+            return (False, "숫자로 입력하세요. 예: 6.0")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q17()
     return ans
 
+
 def answer_q18(show_explanation: bool = True):
-    # 예상 맥락: "aaaa".replace("a","b",2) 의 결과
-    def checker(src):
-        val = src.strip().strip('"').strip("'")
-        return (val == "bbaa", "")
-    ans = _ask_until_correct(checker)
+    accepts = [
+        'f"{city}: {temp}C, Humidity {h}%"',
+        '"{}: {}C, Humidity {}%".format(city,temp,h)',
+        "'{}: {}C, Humidity {}%'.format(city,temp,h)"
+    ]
+    ans = _ask_until_correct(lambda s: (_matches_any(s, *accepts), "정답은 f-string 또는 format 방식으로 출력합니다."))
     if show_explanation: explain_q18()
     return ans
 
+
 def answer_q19(show_explanation: bool = True):
-    # 예상 맥락: "abcde"[::-1] 의 결과
-    def checker(src):
-        val = src.strip().strip('"').strip("'")
-        return (val == "edcba", "")
-    ans = _ask_until_correct(checker)
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "float(str(3.14))"), "정답은 2번입니다."))
     if show_explanation: explain_q19()
     return ans
 
+
 def answer_q20(show_explanation: bool = True):
-    # 예상 맥락: "Python".find("th") 의 결과
-    def checker(src):
-        s = src.strip()
-        try:
-            n = int(s)
-        except Exception:
-            return (False, "")
-        return (n == 2, "")
-    ans = _ask_until_correct(checker)
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "1", "set"), "정답은 1) set 입니다."))
     if show_explanation: explain_q20()
     return ans
 
+
 def answer_q21(show_explanation: bool = True):
-    # 예상 맥락: int(float("10.0")) == 10 의 평가 결과
-    def checker(src):
-        s = src.strip().lower()
-        return (s in ("true", "t"), "")
-    ans = _ask_until_correct(checker)
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "3", "int(\"12.0\")"), "정답은 3) int(\"12.0\") 입니다."))
     if show_explanation: explain_q21()
     return ans
 
@@ -581,10 +594,9 @@ def answer_q23(show_explanation: bool = True):
     return ans
 
 def answer_q24(show_explanation: bool = True):
-    def checker(src):
-        return (src.strip() == "2", "")
-    ans = _ask_until_correct(checker)
-    if show_explanation: explain_q24()
+    ans = _ask_until_correct(lambda s: (s.strip() == "1", ""))
+    if show_explanation:
+        explain_q24()
     return ans
 
 def answer_q25(show_explanation: bool = True):
@@ -598,10 +610,11 @@ def answer_q25(show_explanation: bool = True):
 
 def answer_q26(show_explanation: bool = True):
     def checker(src):
-        expect = "{'a': 1, 'b': 5, 'c': 9}"
-        return (src.strip() == expect, "")
+        tokens = [t for t in src.replace(",", " ").split() if t]
+        return (set(tokens) == {"3"} and len(tokens) == 1, "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q26()
+    if show_explanation:
+        explain_q26()
     return ans
 
 def answer_q27(show_explanation: bool = True):
@@ -634,14 +647,10 @@ def answer_q30(show_explanation: bool = True):
 
 def answer_q31(show_explanation: bool = True):
     def checker(src):
-        student = {'name':'Kim', 'id':1001}
-        try:
-            exec(src, {}, {"student": student})
-        except Exception:
-            return (False, "")
-        return ('email' in student, "")
+        return (src.strip() == "4" or src.strip().lower() == "append", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q31()
+    if show_explanation:
+        explain_q31()
     return ans
 
 def answer_q32(show_explanation: bool = True):
@@ -726,31 +735,51 @@ def explain_q12():
     print("따라서 type(10) == type(10.0)은 False 입니다.")
 
 def explain_q13():
-    print("문자열 인덱싱에서 s[0]은 첫 글자입니다. s = 'Python' 이므로 결과는 'P'입니다.")
+    print("a=2, b=3 에서 a ** b 는 2의 3제곱으로 8입니다.")
+    print("+: 5, *: 6, **: 8, <<: 16 이므로 정답은 3) ** 입니다.")
 
 def explain_q14():
     print("슬라이싱 s[:3]은 시작부터 인덱스 3 직전까지입니다. 'Pyt'가 됩니다.")
 
 def explain_q15():
-    print("연산자 우선순위에 따라 5*2=10, 4/2=2.0 이고 3+10-2.0=11.0 입니다. 결과는 11에 해당합니다.")
+    print('replace(old, new, count)는 왼쪽부터 count회만 치환합니다.')
+    print('"aaaaab"에서 "a"를 "b"로 3회 치환 → "bbbaab"')
 
 def explain_q16():
-    print("문자열 '3.14'를 실수로 바꾸는 함수는 float 입니다. float('3.14') → 3.14")
+    print("Q16 해설:")
+    print("- 문자열은 불변(immutable)하므로 직접 수정할 수 없습니다.")
+    print("- 10 + 10.0 → 정수 + 실수 → 결과 타입은 float 입니다.")
+    print("- append()는 리스트 전용 메서드로 문자열에는 사용할 수 없습니다.")
+
 
 def explain_q17():
-    print("문자열 '10'은 숫자 문자만으로 구성되어 isdigit()이 True입니다.")
+    print("Q17 해설:")
+    print("a//c = 4, b%c = 1, d = 3.0, 2**c = 4")
+    print("→ (4 + 1) - 3 + 4 = 6.0")
+
 
 def explain_q18():
-    print("replace(old,new,count)에서 count=2이면 앞에서부터 두 번만 치환합니다. 'aaaa'→'bbaa'입니다.")
+    print("Q18 해설:")
+    print("f-string 예시 → f\"{city}: {temp}C, Humidity {h}%\"")
+    print("또는 format() 메서드를 이용해 동일한 결과를 출력할 수 있습니다.")
+
 
 def explain_q19():
-    print("슬라이싱 [::-1]은 역순입니다. 'abcde'→'edcba'입니다.")
+    print("Q19 해설:")
+    print("float(str(3.14)) → '3.14' → 3.14 로 복원 가능.")
+    print("하지만 bool, dict, list 등은 문자열화 후 원래 타입으로 직접 복원이 불가합니다.")
+
 
 def explain_q20():
-    print("find는 부분 문자열의 첫 시작 인덱스를 반환합니다. 'Python'에서 'th'는 인덱스 2부터 시작합니다.")
+    print("Q20 해설:")
+    print("기본형(primitive type)은 int, float, bool, str 입니다.")
+    print("set은 집합형 자료로 복합 자료형에 해당하므로 기본형이 아닙니다.")
+
 
 def explain_q21():
-    print("float('10.0')은 10.0, int(10.0)은 10이므로 비교 결과는 True입니다.")
+    print("Q21 해설:")
+    print("int('12.0') 은 ValueError 발생 → 정수형 변환은 소수 문자열을 처리할 수 없습니다.")
+    print("float('12.0') 은 정상 변환됩니다.")
 
 def explain_q22():
     print("strip()은 양쪽 공백 제거입니다. '  hi  '→'hi'가 됩니다.")
@@ -760,16 +789,18 @@ def explain_q23():
     print("a[1:4] 구간(1,2,3)을 [9,9]로 바꿔서 [0,9,9,4]가 됩니다.")
 
 def explain_q24():
-    print("대칭차 A ^ B 는 공통 원소를 제외한 합집합입니다.")
-    print("A={1,2,3}, B={3,4} → {1,2,4} 입니다.")
+    print("A.union(B) = {1,2,3,4}, C = {4,5,6} 이므로 (A∪B)−C = {1,2,3} 입니다.")
 
 def explain_q25():
     print("딕셔너리 키는 해시 가능해야 합니다.")
     print("리스트/딕셔너리/집합은 불가, 튜플/문자열은 가능하므로 (1,2)와 'key'가 정답입니다.")
 
 def explain_q26():
-    print("update는 기존 키를 갱신하고 새로운 키를 추가합니다.")
-    print("{'a':1,'b':2} 에서 b→5로 바뀌고 c:9가 추가되어 {'a':1,'b':5,'c':9}가 됩니다.")
+    print("최종 person은 {'name':'James','age':30,'job':'Engineer'} 입니다.")
+    print("1) keys에 'city'는 존재하지 않습니다(이미 삭제).")
+    print("2) values에 'N/A' 같은 값은 없습니다.")
+    print("3) items는 ('name','James'), ('age',30), ('job','Engineer') 가 맞습니다. ← 정답")
+    print("4) print(person)은 값 변경이지 이력 누적이 아니므로 ['Alice','James']처럼 출력되지 않습니다.")
 
 def explain_q27():
     print("튜플은 불변이지만 내부에 있는 리스트의 내용 변경은 가능합니다.")
@@ -788,8 +819,8 @@ def explain_q30():
     print("s={1,2,2,3} → {1,2,3} 이므로 길이는 3입니다.")
 
 def explain_q31():
-    print("딕셔너리에 키를 추가하려면 대괄호 대입을 사용합니다.")
-    print("student['email']='...' 과 같이 넣으면 'email' in student 가 True가 됩니다.")
+    print("append는 리스트 메서드이며, set에는 사용할 수 없습니다.")
+    print("set에는 add, remove, discard 등이 제공됩니다.")
 
 def explain_q32():
     print("get은 기본값을 줄 수 있고, 키는 해시 가능해야 하며, update는 기존 값을 바꿀 수 있습니다.")
@@ -831,9 +862,9 @@ def _answer_key():
         10: "1",
         11: "int",
         12: "2",
-        13: "P",
+        13: "3",
         14: "Pyt",
-        15: "1",
+        15: "bbbaab",
         16: "float",
         17: "1",
         18: "bbaa",
