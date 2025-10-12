@@ -214,9 +214,17 @@ def show_q17():
 def show_q18():
     _panel(
         "Q18",
-        "다음 변수를 사용하여 아래와 같은 문자열을 출력하는 코드를 작성하시오.\n목표 출력: Seoul: 27.5C, Humidity 60%",
-        code="city='Seoul'\ntemp=27.5\nh=60\nprint(    )"
+        "다음 중 결과가 다른 것은?",
+        code='city = "Jeju"\nvisitors = 15200000\nrating = 4.8'
     )
+    display(Markdown(
+        "보기\n\n"
+        "1) print(\"{}는 연간 {}명이 방문합니다.\".format(city, visitors))\n\n"
+        "2) print(f\"{city}는 연간 {visitors}명이 방문합니다.\")\n\n"
+        "3) print(\"%s는 연간 %d명이 방문합니다.\" % (city, visitors))\n\n"
+        "4) print(city, \"는 연간\", visitors, \"명이 방문합니다.\")"
+    ))
+
 
 
 def show_q19():
@@ -405,6 +413,48 @@ def show_q32():
         "5) update는 기존 키의 값을 바꿀 수 있다"
     ))
 
+def show_q33():
+    _panel(
+        "Q33",
+        "다음 중 컬렉션 형이 아닌 데이터를 고르시오."
+    )
+    display(Markdown(
+        "보기\n\n"
+        "1) [1, 2, 3]\n\n"
+        "2) (1, 2)\n\n"
+        "3) {'a': 1, 'b': 2}\n\n"
+        "4) 42"
+    ))
+
+def show_q34():
+    _panel(
+        "Q34",
+        "다음 코드의 출력 결과로 옳은 것을 고르시오.",
+        code=(
+            "tensor = [\n"
+            "    [1, 2, 3, 4],\n"
+            "    [5, 6, 7, 8],\n"
+            "    [9, 10, 11, 12]\n"
+            "]\n"
+            "print(tensor[0:2][1][1:3])"
+        )
+    )
+    display(Markdown(
+        "보기\n\n"
+        "1) [6, 7]\n\n"
+        "2) [1, 2]\n\n"
+        "3) [5, 6, 7]\n\n"
+        "4) [7, 8]"
+    ))
+
+
+def show_q35():
+    _panel(
+        "Q35",
+        "[1, 2, 3, 4, 5] 가 출력되도록 빈칸에 들어갈 코드를 작성하시오.",
+        code="nums = [1, 2, 2, 3, 4, 4, 5]\nprint(    )"
+    )
+
 
 # =========================
 # 답안 : answer_qN()
@@ -532,48 +582,39 @@ def answer_q15(show_explanation: bool = True):
     return ans
 
 def answer_q16(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "type(10 + 10.0) 는 float 이다"), "정답은 2번입니다."))
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "type(10 + 10.0) 는 float 이다"), ""))
     if show_explanation: explain_q16()
     return ans
-
 
 def answer_q17(show_explanation: bool = True):
     def checker(s):
         expected = (9 // 2) + (5 % 2) - 3.0 + 2**2  # 6.0
         try:
-            return (float(s.strip()) == expected, f"정답은 {expected} 입니다.")
+            return (float(s.strip()) == expected, "")
         except:
-            return (False, "숫자로 입력하세요. 예: 6.0")
+            return (False, "")
     ans = _ask_until_correct(checker)
     if show_explanation: explain_q17()
     return ans
 
-
 def answer_q18(show_explanation: bool = True):
-    accepts = [
-        'f"{city}: {temp}C, Humidity {h}%"',
-        '"{}: {}C, Humidity {}%".format(city,temp,h)',
-        "'{}: {}C, Humidity {}%'.format(city,temp,h)"
-    ]
-    ans = _ask_until_correct(lambda s: (_matches_any(s, *accepts), "정답은 f-string 또는 format 방식으로 출력합니다."))
+    # 최종 확정: 결과가 다른 것은? (1,2,3 동일 / 4만 다름) → "4"
+    ans = _ask_until_correct(lambda s: (s.strip() == "4", ""))
     if show_explanation: explain_q18()
     return ans
 
-
 def answer_q19(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "float(str(3.14))"), "정답은 2번입니다."))
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "2", "float(str(3.14))"), ""))
     if show_explanation: explain_q19()
     return ans
 
-
 def answer_q20(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "1", "set"), "정답은 1) set 입니다."))
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "1", "set"), ""))
     if show_explanation: explain_q20()
     return ans
 
-
 def answer_q21(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (_matches_any(s, "3", "int(\"12.0\")"), "정답은 3) int(\"12.0\") 입니다."))
+    ans = _ask_until_correct(lambda s: (_matches_any(s, "3", "int(\"12.0\")"), ""))
     if show_explanation: explain_q21()
     return ans
 
@@ -664,26 +705,37 @@ def answer_q32(show_explanation: bool = True):
 
 def answer_q33(show_explanation: bool = True):
     def checker(src):
-        expect = "[0, 9, 3, 7] [0, 9, 3, 7]"
-        return (src.strip() == expect, "")
+        return (src.strip() == "4", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q33()
+    if show_explanation:
+        explain_q33()
     return ans
 
 def answer_q34(show_explanation: bool = True):
     def checker(src):
-        return (src.strip() == "2", "")
+        return (src.strip() == "1", "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q34()
+    if show_explanation:
+        explain_q34()
     return ans
 
 def answer_q35(show_explanation: bool = True):
+    nums = [1, 2, 2, 3, 4, 4, 5]
     def checker(src):
-        return (src.strip() == "1", "")
+        s = "".join(src.split())
+        # 정확히 list(set(nums))만 정답으로 인정
+        if s != "list(set(nums))":
+            return (False, "")
+        # 실행 검증(에러만 체크)
+        try:
+            _ = eval(src, {}, {"nums": nums})
+        except Exception:
+            return (False, "")
+        return (True, "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q35()
+    if show_explanation:
+        explain_q35()
     return ans
-
 
 # =========================
 # 해설 함수 : explain_qN()
@@ -757,12 +809,10 @@ def explain_q17():
     print("a//c = 4, b%c = 1, d = 3.0, 2**c = 4")
     print("→ (4 + 1) - 3 + 4 = 6.0")
 
-
 def explain_q18():
     print("Q18 해설:")
-    print("f-string 예시 → f\"{city}: {temp}C, Humidity {h}%\"")
-    print("또는 format() 메서드를 이용해 동일한 결과를 출력할 수 있습니다.")
-
+    print("1), 2), 3)은 모두 동일한 문자열 'Jeju는 연간 15200000명이 방문합니다.' 를 출력합니다.")
+    print("4)는 print에 여러 인자를 콤마로 전달해 토큰 사이에 공백이 추가되어 'Jeju 는 연간 15200000 명이 방문합니다.'처럼 다르게 출력됩니다.")
 
 def explain_q19():
     print("Q19 해설:")
@@ -827,17 +877,20 @@ def explain_q32():
     print("따라서 1, 2, 5가 옳고, 빈 딕셔너리는 {} 이며 리스트는 키로 사용할 수 없습니다.")
 
 def explain_q33():
-    print("a와 b는 같은 리스트를 참조합니다.")
-    print("a[1:3]=[9]로 [0,9,3]이 되고 b.append(7)로 둘 다 [0,9,3,7]이 됩니다.")
+    print("Q33 해설:")
+    print("컬렉션 형(여러 요소를 담는 자료형) 예시: 리스트[], 튜플(), 딕셔너리{키:값}.")
+    print("42는 정수(int)로 컬렉션이 아니므로 정답은 4) 입니다.")
 
 def explain_q34():
-    print("a[2:2]=[...] 는 삽입입니다(치환 아님).")
-    print("[8,9]가 인덱스 2 위치에 끼어들어 [0,1,8,9,2,3]이 됩니다.")
+    print("Q34 해설:")
+    print("tensor[0:2] → [[1,2,3,4], [5,6,7,8]] (첫 두 행)")
+    print("[...][1]   → [5,6,7,8] (그 중 두 번째 행)")
+    print("[...][1:3] → [6,7] (인덱스 1부터 3 직전까지)")
 
 def explain_q35():
-    print("딕셔너리의 in 연산은 키 존재 여부를 검사합니다.")
-    print("'id'는 키로 존재하므로 결과는 True 입니다.")
-
+    print("Q35 해설:")
+    print("중복 제거는 set으로 하고, 리스트 형태로 출력하기 위해 list로 감쌉니다.")
+    print("정답 형태: list(set(nums))")
 
 
 def show_all_explanations(show_answer=True):
@@ -862,29 +915,29 @@ def _answer_key():
         10: "1",
         11: "int",
         12: "2",
-        13: "3",
+        13: "3",                         # 2 ** 3 → 8
         14: "Pyt",
         15: "bbbaab",
-        16: "float",
-        17: "1",
-        18: "bbaa",
-        19: "edcba",
-        20: "3",
-        21: "1",
+        16: "2",                         # type(10 + 10.0) → float
+        17: "6.0",
+        18: "4",                         # 결과가 다른 것은? → 4번
+        19: "2",
+        20: "1",
+        21: "3",
         22: "hi",
         23: "1",
-        24: "2",
+        24: "1",                         # A.union(B) - C
         25: "2 4",
-        26: "{'a': 1, 'b': 5, 'c': 9}",
+        26: "3",                         # dict keys/values/items 객관식
         27: "1",
         28: "2",
         29: "'N/A'",
         30: "1",
-        31: "student['email']='...'",
+        31: "4",                         # set에 없는 함수 → append
         32: "1 2 5",
-        33: "[0, 9, 3, 7] [0, 9, 3, 7]",
-        34: "2",
-        35: "1",
+        33: "4",                         # 컬렉션 아님 → int
+        34: "1",
+        35: "list(set(nums))",           # 형식 고정
     }
 
 
