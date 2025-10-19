@@ -211,7 +211,14 @@ def show_q17():
     _panel(
         "Q17",
         "다음 코드를 실행했을 때, 계산 결과를 숫자로 정확히 쓰시오.",
-        code="a=9\nb=5\nc=2\nd=3.0\nexpr=(a//c)+(b%c)-d+2**c\nprint(expr)"
+        code=(
+            "a = 27\n"
+            "b = 5\n"
+            "c = 4\n"
+            "d = 3\n"
+            "expr = ((a % b) * c) ** 2 // d + (a // b)\n"
+            "print(expr)"
+        )
     )
 
 
@@ -223,12 +230,11 @@ def show_q18():
     )
     display(Markdown(
         "보기\n\n"
-        "1) print(f\"{data['city']}의 {data['season']} 평균기온은 {data['temp']}도입니다.\")\n\n"
-        "2) print(\"{}의 {} 평균기온은 {}도입니다.\".format(data['city'], data['season']))\n\n"
-        "3) print(data['city'] + \"의 \" + data['season'] + \" 평균기온은 \" + str(data['temp']) + \"도입니다.\")\n\n"
-        "4) print(\"%s의 %s 평균기온은 %.1f도입니다.\" % (data['city'], data['season'], data['temp']))"
+        "1) print(\"{city}의 {season} 평균기온은 {temp}도입니다.\".format(data))\n\n"
+        "2) print(f\"{data['city']}의 {data['season']} 평균기온은 {data['temp']}도입니다.\")\n\n"
+        "3) print(\"%s의 %s 평균기온은 28.3도입니다.\" % tuple(data.values())[:2])\n\n"
+        "4) print(data['city']+\"의 \"+data['season']+\" 평균기온은 \"+str(data['temp'])+\"도입니다.\")"
     ))
-
 
 
 def show_q19():
@@ -609,17 +615,19 @@ def answer_q16(show_explanation: bool = True):
 
 def answer_q17(show_explanation: bool = True):
     def checker(s):
-        expected = (9 // 2) + (5 % 2) - 3.0 + 2**2  # 6.0
+        a, b, c, d = 27, 5, 4, 3
+        expected = ((a % b) * c) ** 2 // d + (a // b)  # 26
         try:
             return (float(s.strip()) == expected, "")
-        except:
+        except Exception:
             return (False, "")
     ans = _ask_until_correct(checker)
-    if show_explanation: explain_q17()
+    if show_explanation:
+        explain_q17()
     return ans
 
 def answer_q18(show_explanation: bool = True):
-    ans = _ask_until_correct(lambda s: (s.strip() == "2", ""))
+    ans = _ask_until_correct(lambda s: (s.strip() == "1", ""))
     if show_explanation:
         explain_q18()
     return ans
@@ -824,16 +832,21 @@ def explain_q16():
     print("- 10 + 10.0 → 정수 + 실수 → 결과 타입은 float 입니다.")
     print("- append()는 리스트 전용 메서드로 문자열에는 사용할 수 없습니다.")
 
-
 def explain_q17():
     print("Q17 해설:")
-    print("a//c = 4, b%c = 1, d = 3.0, 2**c = 4")
-    print("→ (4 + 1) - 3 + 4 = 6.0")
+    print("a % b = 27 % 5 = 2")
+    print("(2 * c) = 2 * 4 = 8")
+    print("8 ** 2 = 64")
+    print("64 // d = 64 // 3 = 21")
+    print("a // b = 27 // 5 = 5")
+    print("최종: 21 + 5 = 26")
 
 def explain_q18():
     print("Q18 해설:")
-    print("1), 3), 4)는 모두 목표 출력과 동일한 문자열을 만듭니다.")
-    print("2)는 format 자리표시자가 3개인데 인자를 2개만 전달하여 형식이 맞지 않아 다른 결과(에러)가 발생합니다.")
+    print("1) .format(data)에서 키워드 언패킹(**data) 없이 {city}/{season}/{temp}를 참조하여 KeyError가 발생합니다. ← 다른 결과")
+    print("2) f-string으로 딕셔너리 값을 직접 참조하므로 목표 문자열이 그대로 출력됩니다.")
+    print("3) dict는 삽입 순서를 보장하므로 tuple(data.values())[:2] → ('Jeju','여름')가 되어 목표와 동일하게 출력됩니다.")
+    print("4) 문자열 덧셈과 str() 변환으로 목표 문자열과 동일하게 출력됩니다.")
 
 def explain_q19():
     print("Q19 해설:")
