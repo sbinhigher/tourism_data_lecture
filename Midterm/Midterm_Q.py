@@ -218,15 +218,15 @@ def show_q17():
 def show_q18():
     _panel(
         "Q18",
-        "다음 중 결과가 다른 것은?",
-        code='city = "Jeju"\nvisitors = 15200000\nrating = 4.8'
+        "다음 중 결과가 다른 코드를 고르시오.",
+        code='data = {"city": "Jeju", "season": "여름", "temp": 28.3}\n\n# 목표 출력\nJeju의 여름 평균기온은 28.3도입니다.'
     )
     display(Markdown(
         "보기\n\n"
-        "1) print(\"{}는 연간 {}명이 방문합니다.\".format(city, visitors))\n\n"
-        "2) print(f\"{city}는 연간 {visitors}명이 방문합니다.\")\n\n"
-        "3) print(\"%s는 연간 %d명이 방문합니다.\" % (city, visitors))\n\n"
-        "4) print(city, \"는 연간\", visitors, \"명이 방문합니다.\")"
+        "1) print(f\"{data['city']}의 {data['season']} 평균기온은 {data['temp']}도입니다.\")\n\n"
+        "2) print(\"{}의 {} 평균기온은 {}도입니다.\".format(data['city'], data['season']))\n\n"
+        "3) print(data['city'] + \"의 \" + data['season'] + \" 평균기온은 \" + str(data['temp']) + \"도입니다.\")\n\n"
+        "4) print(\"%s의 %s 평균기온은 %.1f도입니다.\" % (data['city'], data['season'], data['temp']))"
     ))
 
 
@@ -619,9 +619,9 @@ def answer_q17(show_explanation: bool = True):
     return ans
 
 def answer_q18(show_explanation: bool = True):
-    # 최종 확정: 결과가 다른 것은? (1,2,3 동일 / 4만 다름) → "4"
-    ans = _ask_until_correct(lambda s: (s.strip() == "4", ""))
-    if show_explanation: explain_q18()
+    ans = _ask_until_correct(lambda s: (s.strip() == "2", ""))
+    if show_explanation:
+        explain_q18()
     return ans
 
 def answer_q19(show_explanation: bool = True):
@@ -832,8 +832,8 @@ def explain_q17():
 
 def explain_q18():
     print("Q18 해설:")
-    print("1), 2), 3)은 모두 동일한 문자열 'Jeju는 연간 15200000명이 방문합니다.' 를 출력합니다.")
-    print("4)는 print에 여러 인자를 콤마로 전달해 토큰 사이에 공백이 추가되어 'Jeju 는 연간 15200000 명이 방문합니다.'처럼 다르게 출력됩니다.")
+    print("1), 3), 4)는 모두 목표 출력과 동일한 문자열을 만듭니다.")
+    print("2)는 format 자리표시자가 3개인데 인자를 2개만 전달하여 형식이 맞지 않아 다른 결과(에러)가 발생합니다.")
 
 def explain_q19():
     print("Q19 해설:")
