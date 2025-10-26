@@ -1,43 +1,60 @@
 # -*- coding: utf-8 -*-
-# Week5_Q.py : 제어문/반복문 과제 (if, 한줄 if, for, while, enumerate, zip, 들여쓰기, 무한루프)
-# 기능별 배치: 상수/스타일 → 공용 유틸 → 문제 레지스트리 → 공용 API → 호환 래퍼
-
+# Week5_Q_final.py : 제어문/반복문 + CSV 연동 자동 출제 (Q8~Q10)
 from IPython.display import display, HTML, Markdown
 import re
+import pandas as _pd
+import random as _rnd
+_rnd.seed(2025)
+
+CSV_PATH = "https://raw.githubusercontent.com/sbinhigher/tourism_data_lecture/main/Week5/jeju_data.csv"
+CONFIG = {
+    "region_col": "행정구역",
+    "month_col":  "월",
+    "numeric_cols": ["방문객수", "평균지출액", "평균기온", "외국인비율"],
+}
+_DF = None
+def _load_df():
+    global _DF
+    if _DF is None:
+        try:
+            df = _pd.read_csv(CSV_PATH)
+            df.columns = [c.strip() for c in df.columns]
+            for c in CONFIG.get("numeric_cols", []):
+                if c in df.columns:
+                    df[c] = _pd.to_numeric(df[c], errors="coerce")
+            _DF = df
+        except Exception as e:
+            print("CSV를 불러오지 못했습니다:", e)
+            return None
+    return _DF
 
 CORRECT_ICON = "✅"
 WRONG_ICON   = "❌"
-
 def set_icons(correct="✅", wrong="❌"):
     global CORRECT_ICON, WRONG_ICON
     CORRECT_ICON, WRONG_ICON = correct, wrong
-
-RENDER_STYLE = "week4"
+RENDER_STYLE = "week4"  # "week4" | "panel"
 def set_style(style: str = "week4"):
     global RENDER_STYLE
     if style not in {"week4", "panel"}:
         style = "week4"
     RENDER_STYLE = style
-
 PANEL_CSS = """
 <style>
 .wq-panel {border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;padding:12px;background:#fafafa;}
 .wq-title {font-weight:700;margin:0 0 6px 0;}
 .wq-body  {margin:6px 0;}
-.wq-code  {background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
-.wq-note  {color:#374151;font-size:0.9em;}
+.wq-code  {background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
 </style>
 """
-
 def _panel(title: str, body: str, code: str = None):
     html = [PANEL_CSS, '<div class="wq-panel">', f'<div class="wq-title">{title}</div>']
     html.append(f'<div class="wq-body">{body}</div>')
     if code is not None:
         from html import escape
         html.append(f'<div class="wq-code">{escape(code)}</div>')
-    html.append('</div>')
+    html.append("</div>")
     display(HTML("".join(html)))
-
 STYLE_WEEK4 = """
 <style>
 .qbox{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fff;}
@@ -49,7 +66,6 @@ STYLE_WEEK4 = """
 .qcode{background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
 </style>
 """
-
 def _render_week4(qid: int, title: str, body: str, code: str = None):
     choices = []
     if code:
@@ -57,9 +73,7 @@ def _render_week4(qid: int, title: str, body: str, code: str = None):
             m = re.match(r"\s*(\d+)\)\s*(.+)$", line.strip())
             if m:
                 choices.append((m.group(1), m.group(2)))
-    html = [STYLE_WEEK4, '<div class="qbox">',
-            f'<div class="qtitle">Q{qid}</div>',
-            f'<div class="qstem">{body}</div>']
+    html = [STYLE_WEEK4, '<div class="qbox">', f'<div class="qtitle">Q{qid}</div>', f'<div class="qstem">{body}</div>']
     if choices:
         html.append('<div class="qlabel">보기</div>')
         html.append('<ol class="qchoices">')
@@ -105,89 +119,162 @@ def _matches_any_text(s, *alts):
             return True
     return False
 
+def _pick_region(df):
+    rc = CONFIG["region_col"]
+    if rc and rc in df.columns:
+        vals = df[rc].dropna().unique().tolist()
+        return _rnd.choice(vals) if vals else None
+    return None
+def _pick_numeric_col(df):
+    nums = [c for c in CONFIG["numeric_cols"] if c in df.columns]
+    return _rnd.choice(nums) if nums else None
+def _num(value, nd=2):
+    try:
+        return round(float(value), nd)
+    except:
+        return value
+def _mcq_choices(correct, make_wrong, k=4):
+    choices = [correct]
+    tries = 0
+    while len(choices) < k and tries < 40:
+        w = make_wrong()
+        if w is None:
+            tries += 1
+            continue
+        if w not in choices:
+            choices.append(w)
+        tries += 1
+    while len(choices) < k:
+        choices.append(correct)
+    _rnd.shuffle(choices)
+    idx = choices.index(correct) + 1
+    return choices, idx
+def _nearly_equal(a, b, tol_abs=1e-6, tol_rel=1e-3):
+    a, b = float(a), float(b)
+    return abs(a-b) <= max(tol_abs, tol_rel*max(1.0, abs(a), abs(b)))
+
+def _make_q8():
+    df = _load_df()
+    if df is None:
+        return dict(kind="mcq", title="Q8) CSV 로드 실패", body="CSV 파일을 찾지 못했습니다.", code="", checker=lambda s: False, explain="CSV 경로 확인")
+    rc, mc = CONFIG["region_col"], CONFIG["month_col"]
+    yc = _pick_numeric_col(df)
+    region = _pick_region(df)
+    if yc is None or region is None:
+        return dict(kind="mcq", title="Q8) 데이터 부족", body="집계할 데이터가 부족합니다.", code="", checker=lambda s: False, explain="CSV/컬럼 점검")
+    body = f"{region} 지역의 {yc}의 평균값(전 기간 기준)에 가장 가까운 것은?"
+    val = df.loc[df[rc]==region, yc].dropna().mean()
+    val = _num(val, 2)
+    def wrong():
+        base = df[yc].dropna()
+        if base.empty:
+            return None
+        q = base.quantile(_rnd.uniform(0.1, 0.9))
+        return _num(q, 2)
+    choices, idx = _mcq_choices(val, wrong, k=4)
+    code = "\n".join([f"{i}) {c}" for i, c in enumerate(choices, 1)])
+    return dict(kind="mcq", title="Q8) 객관식 — 지역 평균 추정", body=body, code=code, checker=lambda s: _normalize_choice(s) == str(idx), explain=f"정답: {idx}) {val}")
+
+def _make_q9():
+    df = _load_df()
+    if df is None:
+        return dict(kind="mcq", title="Q9) CSV 로드 실패", body="CSV 파일을 찾지 못했습니다.", code="", checker=lambda s: False, explain="CSV 경로 확인")
+    rc = CONFIG["region_col"]
+    yc = _pick_numeric_col(df)
+    if yc is None or rc not in df.columns:
+        return dict(kind="mcq", title="Q9) 데이터 부족", body="집계할 데이터가 부족합니다.", code="", checker=lambda s: False, explain="CSV/컬럼 점검")
+    gb = df.groupby(rc, dropna=True)[yc].mean().dropna().sort_values(ascending=False)
+    if gb.empty:
+        return dict(kind="mcq", title="Q9) 데이터 부족", body="집계 결과가 비었습니다.", code="", checker=lambda s: False, explain="CSV/컬럼 점검")
+    correct_region = gb.index[0]
+    wrong_regs = gb.index[1:6].tolist()
+    _rnd.shuffle(wrong_regs)
+    opts = [correct_region] + wrong_regs[:3]
+    _rnd.shuffle(opts)
+    idx = opts.index(correct_region) + 1
+    body = f"{yc}의 평균값이 가장 높은 지역을 고르시오."
+    code = "\n".join([f"{i}) {name}" for i, name in enumerate(opts, 1)])
+    exp  = f"정답: {idx}) {correct_region}"
+    return dict(kind="mcq", title="Q9) 객관식 — 평균 최댓값 지역", body=body, code=code, checker=lambda s: _normalize_choice(s) == str(idx), explain=exp)
+
+def _make_q10():
+    df = _load_df()
+    if df is None:
+        return dict(kind="short", title="Q10) CSV 로드 실패", body="CSV 파일을 찾지 못했습니다.", code="", checker=lambda s: False, explain="CSV 경로 확인")
+    rc, mc = CONFIG["region_col"], CONFIG["month_col"]
+    yc = _pick_numeric_col(df)
+    region = _pick_region(df)
+    if yc is None or region is None:
+        return dict(kind="short", title="Q10) 데이터 부족", body="집계할 데이터가 부족합니다.", code="", checker=lambda s: False, explain="CSV/컬럼 점검")
+    if mc and mc in df.columns:
+        months_raw = df[mc].dropna().unique().tolist()
+        months = []
+        for m in months_raw:
+            try:
+                months.append(int(m))
+            except:
+                pass
+        month = _rnd.choice(sorted(months)) if months else None
+        if month is not None:
+            filt = (df[rc]==region) & (df[mc]==month)
+            body = f"{region} 지역의 {month}월 {yc} 총합(정수 반올림)을 입력하시오."
+        else:
+            filt = (df[rc]==region)
+            body = f"{region} 지역의 {yc} 총합(정수 반올림)을 입력하시오."
+    else:
+        filt = (df[rc]==region)
+        body = f"{region} 지역의 {yc} 총합(정수 반올림)을 입력하시오."
+    total = df.loc[filt, yc].dropna().sum()
+    total_round = int(round(float(total)))
+    def checker(s):
+        try:
+            ans = float(s)
+        except:
+            return False
+        return _nearly_equal(ans, total_round, tol_abs=0.5)
+    return dict(kind="short", title="Q10) 주관식 — 총합 계산", body=body, code="", checker=checker, explain=f"정답(반올림): {total_round}")
+
 Q = {
-    1: dict(
-        kind="mcq_theory",
-        title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
-        body="다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
+    1: dict(kind="mcq_theory", title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
+        body="다음 중 파이썬에서 코드 블록을 구분하는 방식으로 옳은 것은?",
         code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()",
         checker=lambda s: (_normalize_choice(s) == "3") or _matches_any_text(s, "들여쓰기", "indentation", "indent"),
-        explain="- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
-    ),
-    2: dict(
-        kind="mcq",
-        title="Q2) 객관식 — if/elif/else 구조",
-        body="다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
+        explain="- 정답: 3\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."),
+    2: dict(kind="mcq", title="Q2) 객관식 — if/elif/else 구조",
+        body="다음 중 if문 구조에 대한 설명으로 틀린 것은?",
         code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다.",
         checker=lambda s: _normalize_choice(s) == "4",
-        explain="- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."
-    ),
-    3: dict(
-        kind="short",
-        title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
-        body="다음 조건문을 **한 줄로** 표현하세요.",
+        explain="- 정답: 4\n- else는 필수가 아니라 선택입니다."),
+    3: dict(kind="short", title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
+        body="다음 조건문을 한 줄로 표현하세요.",
         code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\"",
         checker=lambda s: ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s),
-        explain="- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"
-    ),
-    4: dict(
-        kind="mcq",
-        title="Q4) 객관식 — for + range 결과",
+        explain="- 예시: result = \"성인\" if age >= 20 else \"미성년자\"" ),
+    4: dict(kind="mcq", title="Q4) 객관식 — for + range 결과",
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="for i in range(2, 7, 2):\n    print(i, end=' ')",
         checker=lambda s: _matches_any_text(s, "2 4 6", "2,4,6", "2-4-6", "246"),
-        explain="- 정답: **2 4 6**"
-    ),
-    5: dict(
-        kind="short",
-        title="Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
+        explain="- 정답: 2 4 6"),
+    5: dict(kind="short", title="Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
         body="빈칸을 채워 코드를 완성하세요.",
-        code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
+        code="fruits = [\\\"apple\\\", \\\"banana\\\", \\\"cherry\\\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
         checker=lambda s: s.replace(" ", "") in {"idx,name", "i,name", "index,name", "k,v", "a,b"},
         prompt="두 변수명을 콤마로 구분해 입력: ",
-        explain="- 예시 정답: `idx, name`"
-    ),
-    6: dict(
-        kind="mcq",
-        title="Q6) 객관식 — while에서 무한 루프 탈출",
-        body="다음 `while`문에서 **무한 루프를 깨기 위해** 빈칸(`_____`)에 들어갈 구문을 고르시오.<div class=\"qcode\">i = 0\nwhile True:\n    i += 1\n    if i > 5:\n        _____\n    print(i)</div>",
+        explain="- 예시: idx, name"),
+    6: dict(kind="mcq", title="Q6) 객관식 — while에서 무한 루프 탈출",
+        body="다음 while문에서 무한 루프를 깨기 위해 빈칸(_____)에 들어갈 구문을 고르시오.<div class=\"qcode\">i = 0\nwhile True:\n    i += 1\n    if i > 5:\n        _____\n    print(i)</div>",
         code="1) break\n2) continue\n3) pass\n4) raise SystemExit",
         checker=lambda s: _normalize_choice(s) == "1",
-        explain="- 정답: **1) break**\n- `break`는 가장 안쪽 반복문을 **즉시 종료**합니다.\n- `continue`는 이번 반복만 건너뛰며, `pass`는 아무 동작도 하지 않습니다.\n- `raise SystemExit`는 프로그램 종료 예외를 발생시키며, 보통 반복문 제어용으로 사용하지 않습니다."
-    ),
-    7: dict(
-        kind="mcq",
-        title="Q7) 객관식 — while 반복 결과",
+        explain="- 정답: 1) break\n- break는 가장 안쪽 반복문을 즉시 종료합니다.\n- continue는 이번 반복만 건너뜁니다.\n- pass는 아무 동작도 하지 않습니다.\n- raise SystemExit는 프로그램 종료 예외입니다."),
+    7: dict(kind="mcq", title="Q7) 객관식 — while 반복 결과",
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1",
         checker=lambda s: _matches_any_text(s, "1 2 3", "1,2,3", "123"),
-        explain="- 정답: **1 2 3** (줄바꿈으로 출력됨)"
-    ),
-    8: dict(
-        kind="short",
-        title="Q8) 주관식 — 무한 루프를 방지하려면?",
-        body="다음 while문이 무한 루프가 되지 않도록 필요한 조치를 서술하세요.",
-        code="count = 1\nwhile count <= 3:\n    print(count)\n    # 여기에 무엇이 필요할까요?",
-        checker=lambda s: (("+=" in s and "count" in s) or ("증가" in s) or ("갱신" in s)),
-        explain="- 예시: 반복 변수 갱신 (예: `count += 1`)"
-    ),
-    9: dict(
-        kind="mcq",
-        title="Q9) 객관식 — 들여쓰기 차이에 따른 결과",
-        body='다음 두 코드 중, `"수고하셨습니다."`가 **조건과 무관하게 항상 실행**되는 것은?',
-        code="A)\nif score >= 60:\n    print(\"합격입니다.\")\nprint(\"수고하셨습니다.\")\n\nB)\nif score >= 60:\n    print(\"합격입니다.\")\n    print(\"수고하셨습니다.\")",
-        checker=lambda s: _matches_any_text(s, "a"),
-        explain="- 정답: **A** — 두 번째 print가 if 블록 **밖**에 있습니다."
-    ),
-    10: dict(
-        kind="short",
-        title="Q10) 주관식 — for문에서 누적 변수를 어디서 초기화해야 하나요?",
-        body="아래 코드는 의도와 다르게 동작합니다. **왜 그런지**와 **어떻게 고칠지**를 서술하세요.",
-        code="nums = [1, 2, 3]\nfor n in nums:\n    total = 0\n    total += n\nprint(total)",
-        checker=lambda s: (("반복문 밖" in s) or ("밖에서" in s) or ("outside" in s) or ("한 번만" in s)),
-        explain="- `total`을 반복문 **밖에서 한 번만** 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
-    ),
+        explain="- 정답: 1 2 3 (줄바꿈)"),
 }
+Q[8]  = _make_q8()
+Q[9]  = _make_q9()
+Q[10] = _make_q10()
 
 def show(qid: int):
     q = Q[qid]
@@ -196,11 +283,9 @@ def show(qid: int):
         _render_week4(qid, title, body, code)
     else:
         _panel(title, body, code)
-
 def explain(qid: int):
     q = Q[qid]
     display(Markdown(q["explain"]))
-
 def answer(qid: int, show_explanation: bool=True):
     q = Q[qid]
     prompt = q.get("prompt", "정답을 입력하세요: ")
@@ -208,12 +293,10 @@ def answer(qid: int, show_explanation: bool=True):
     if show_explanation:
         explain(qid)
     return ok
-
 def show_all():
     for i in range(1, len(Q)+1):
         show(i)
     display(Markdown("> 모든 문제 프리뷰가 표시되었습니다."))
-
 def answers_brief():
     return {
         1: "3 (들여쓰기)",
@@ -223,15 +306,13 @@ def answers_brief():
         5: "idx, name",
         6: "1 (break)",
         7: "1 2 3",
-        8: "count += 1 (반복 변수 갱신)",
-        9: "A",
-        10:"누적 변수는 반복문 밖에서 초기화"
+        8: "데이터 기반",
+        9: "데이터 기반",
+        10:"데이터 기반"
     }
-
 def _mk_show(qid):    return lambda : show(qid)
 def _mk_answer(qid):  return lambda show_explanation=True: answer(qid, show_explanation)
 def _mk_explain(qid): return lambda : explain(qid)
-
 for _i in range(1, 10+1):
     globals()[f"show_q{_i}"]    = _mk_show(_i)
     globals()[f"answer_q{_i}"]  = _mk_answer(_i)
