@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-# Week5_Q.py : 제어문/반복문 과제 (if, 한줄 if, for, while, enumerate, zip, 들여쓰기, 무한루프)
-# 기능별 배치: 상수/스타일 → 공용 유틸 → 문제 레지스트리 → 공용 API → 호환 래퍼
+# Week5_Q.py : 제어문/반복문 + 라이브러리 기초 (Q8~Q10: 라이브러리 이론)
+# - Week4 스타일 UI 유지, 숫자/기호/한글 입력 정규화
+# - 오답 시 정답 미노출, 재시도 가능
 
 from IPython.display import display, HTML, Markdown
 import re
@@ -12,7 +13,7 @@ def set_icons(correct="✅", wrong="❌"):
     global CORRECT_ICON, WRONG_ICON
     CORRECT_ICON, WRONG_ICON = correct, wrong
 
-RENDER_STYLE = "week4"
+RENDER_STYLE = "week4"  # "week4" | "panel"
 def set_style(style: str = "week4"):
     global RENDER_STYLE
     if style not in {"week4", "panel"}:
@@ -24,18 +25,16 @@ PANEL_CSS = """
 .wq-panel {border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;padding:12px;background:#fafafa;}
 .wq-title {font-weight:700;margin:0 0 6px 0;}
 .wq-body  {margin:6px 0;}
-.wq-code  {background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;}
-.wq-note  {color:#374151;font-size:0.9em;}
+.wq-code  {background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
 </style>
 """
-
 def _panel(title: str, body: str, code: str = None):
     html = [PANEL_CSS, '<div class="wq-panel">', f'<div class="wq-title">{title}</div>']
     html.append(f'<div class="wq-body">{body}</div>')
     if code is not None:
         from html import escape
         html.append(f'<div class="wq-code">{escape(code)}</div>')
-    html.append('</div>')
+    html.append("</div>")
     display(HTML("".join(html)))
 
 STYLE_WEEK4 = """
@@ -49,7 +48,6 @@ STYLE_WEEK4 = """
 .qcode{background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
 </style>
 """
-
 def _render_week4(qid: int, title: str, body: str, code: str = None):
     choices = []
     if code:
@@ -57,9 +55,7 @@ def _render_week4(qid: int, title: str, body: str, code: str = None):
             m = re.match(r"\s*(\d+)\)\s*(.+)$", line.strip())
             if m:
                 choices.append((m.group(1), m.group(2)))
-    html = [STYLE_WEEK4, '<div class="qbox">',
-            f'<div class="qtitle">Q{qid}</div>',
-            f'<div class="qstem">{body}</div>']
+    html = [STYLE_WEEK4, '<div class="qbox">', f'<div class="qtitle">Q{qid}</div>', f'<div class="qstem">{body}</div>']
     if choices:
         html.append('<div class="qlabel">보기</div>')
         html.append('<ol class="qchoices">')
@@ -109,26 +105,26 @@ Q = {
     1: dict(
         kind="mcq_theory",
         title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
-        body="다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
+        body="다음 중 파이썬에서 코드 블록을 구분하는 방식으로 옳은 것은?",
         code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()",
         checker=lambda s: (_normalize_choice(s) == "3") or _matches_any_text(s, "들여쓰기", "indentation", "indent"),
-        explain="- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
+        explain="정답: 3\n파이썬은 들여쓰기로 코드 블록을 구분합니다."
     ),
     2: dict(
         kind="mcq",
         title="Q2) 객관식 — if/elif/else 구조",
-        body="다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
+        body="다음 중 if문 구조에 대한 설명으로 틀린 것은?",
         code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다.",
         checker=lambda s: _normalize_choice(s) == "4",
-        explain="- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."
+        explain="정답: 4\nelse는 필수가 아니라 선택입니다."
     ),
     3: dict(
         kind="short",
         title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
-        body="다음 조건문을 **한 줄로** 표현하세요.",
+        body="다음 조건문을 한 줄로 표현하세요.",
         code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\"",
         checker=lambda s: ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s),
-        explain="- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"
+        explain="예시 정답: result = \"성인\" if age >= 20 else \"미성년자\""
     ),
     4: dict(
         kind="mcq",
@@ -136,7 +132,7 @@ Q = {
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="for i in range(2, 7, 2):\n    print(i, end=' ')",
         checker=lambda s: _matches_any_text(s, "2 4 6", "2,4,6", "2-4-6", "246"),
-        explain="- 정답: **2 4 6**"
+        explain="정답: 2 4 6"
     ),
     5: dict(
         kind="short",
@@ -145,31 +141,36 @@ Q = {
         code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
         checker=lambda s: s.replace(" ", "") in {"idx,name", "i,name", "index,name", "k,v", "a,b"},
         prompt="두 변수명을 콤마로 구분해 입력: ",
-        explain="- 예시 정답: `idx, name`"
+        explain="예시 정답: idx, name"
     ),
     6: dict(
         kind="mcq",
         title="Q6) 객관식 — while에서 무한 루프 탈출",
-        body="다음 `while`문에서 **무한 루프를 깨기 위해** 빈칸(`_____`)에 들어갈 구문을 고르시오.<div class=\"qcode\">i = 0\nwhile True:\n    i += 1\n    if i > 5:\n        _____\n    print(i)</div>",
+        body="다음 while문에서 무한 루프를 깨기 위해 빈칸(_____)에 들어갈 구문을 고르시오.<div class=\"qcode\">i = 0\nwhile True:\n    i += 1\n    if i > 5:\n        _____\n    print(i)</div>",
         code="1) break\n2) continue\n3) pass\n4) raise SystemExit",
         checker=lambda s: _normalize_choice(s) == "1",
-        explain="- 정답: **1) break**\n- `break`는 가장 안쪽 반복문을 **즉시 종료**합니다.\n- `continue`는 이번 반복만 건너뛰며, `pass`는 아무 동작도 하지 않습니다.\n- `raise SystemExit`는 프로그램 종료 예외를 발생시키며, 보통 반복문 제어용으로 사용하지 않습니다."
+        explain="정답: 1) break\nbreak는 가장 안쪽 반복문을 즉시 종료합니다. continue는 이번 반복만 건너뜁니다. pass는 아무 동작도 하지 않습니다. raise SystemExit는 프로그램 종료 예외입니다."
     ),
     7: dict(
         kind="mcq",
         title="Q7) 객관식 — while 반복 결과",
         body="다음 코드의 출력 결과는 무엇입니까?",
-        code="n = 1\nwhile n < 4:\n    print(n, end = ' ')\n    n += 1",
-        checker=lambda s: _matches_any_text(s, "1 2 3", "1 2 3 "),
-        explain="- 정답: **1 2 3**"
+        code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1",
+        checker=lambda s: _matches_any_text(s, "1 2 3", "1,2,3", "123"),
+        explain="정답: 1 2 3 (줄바꿈)"
     ),
     8: dict(
         kind="mcq",
-        title="Q8) 객관식(이론) — 라이브러리의 특성",
-        body="다음 중 라이브러리의 특성에 대한 설명으로 잘못된 것은?",
-        code="1) 공통 기능을 모듈화해 재사용성을 높인다.\n2) 검증된 구현을 제공해 생산성과 신뢰성을 높인다.\n3) 도메인별 고수준 API를 제공해 개발 복잡도를 낮춘다.\n4) 모든 라이브러리는 파이썬 인터프리터에 기본 포함되어 별도 설치가 필요 없다.",
+        title="Q8) 객관식(이론) — import와 불러오기",
+        body="다음 중 설명으로 틀린 것은?",
+        code=(
+            "1) 일반적으로 설치가 완료된 라이브러리는 import 문을 통해 코드 내에서 불러와 사용한다.\n"
+            "2) Python에서는 특정 모듈 전체 또는 일부만 선택적으로 불러올 수 있다.\n"
+            "3) 라이브러리 명이 긴 경우에는 약어(Alias)를 지정하여 간결하게 사용할 수 있다.\n"
+            "4) from 문은 모듈 전체만 불러올 수 있으며 일부 구성요소만 선택적으로 불러오는 것은 불가능하다."
+        ),
         checker=lambda s: _normalize_choice(s) == "4",
-        explain="정답: 4\n표준 라이브러리가 아닌 외부 라이브러리는 보통 pip/conda로 설치가 필요하다."
+        explain="정답: 4\nfrom 문은 일부 구성요소만 선택적으로 불러올 수 있습니다. 예: from numpy import array, mean 또는 from numpy import random as rnd"
     ),
     9: dict(
         kind="mcq",
@@ -177,15 +178,15 @@ Q = {
         body="다음 중 pandas.DataFrame.describe()의 기본 출력(수치형 기준)에 포함되지 않는 것은?",
         code="1) 분산(variance)\n2) 평균(mean)\n3) 표준편차(std)\n4) 사분위수(25%와 75%)",
         checker=lambda s: _normalize_choice(s) == "1",
-        explain="정답: 1\n기본 출력은 count, mean, std, min, 25%, 50%(median), 75%, max이며, 분산(var)은 포함되지 않는다."
+        explain="정답: 1\ndescribe 기본 수치형 출력: count, mean, std, min, 25%, 50%(median), 75%, max. 분산(var)은 포함되지 않습니다."
     ),
     10: dict(
         kind="mcq",
-        title="Q10) 객관식 — NumPy 함수와 기능의 짝짓기",
+        title="Q10) 객관식 — NumPy 함수와 기능의 짝이 잘못된 것은?",
         body="다음 중 함수와 설명의 짝이 잘못된 것은?",
-        code="1) np.arange(n): 0부터 n-1까지 1 간격의 배열 생성\n2) np.linspace(a, b, k): 구간 [a, b]를 k등분한 실수 배열 생성\n3) np.unique(x, return_counts=True): 고유값과 각 값의 개수 반환\n4) np.reshape(x, newshape): 배열을 무작위 순서로 섞는다",
-        checker=lambda s: _normalize_choice(s) == "4",
-        explain="정답: 4\nnp.reshape는 모양만 바꾸며, 섞으려면 np.random.shuffle 또는 np.random.permutation을 사용한다."
+        code="1) 평균(mean): np.mean(a)\n2) 분산(variance, 표본): np.var(a, ddof=0)\n3) 사분위수범위(IQR): np.percentile(a,75) - np.percentile(a,25)\n4) 범위(range): np.max(a) - np.min(a)",
+        checker=lambda s: _normalize_choice(s) == "2",
+        explain="정답: 2\n표본 분산은 ddof=1, 모집단 분산은 ddof=0을 사용합니다."
     ),
 }
 
@@ -223,9 +224,9 @@ def answers_brief():
         5: "idx, name",
         6: "1 (break)",
         7: "1 2 3",
-        8: "count += 1 (반복 변수 갱신)",
-        9: "A",
-        10:"누적 변수는 반복문 밖에서 초기화"
+        8: "4",
+        9: "1",
+        10:"2"
     }
 
 def _mk_show(qid):    return lambda : show(qid)
