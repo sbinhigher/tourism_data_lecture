@@ -12,6 +12,57 @@ def set_icons(correct="✅", wrong="❌"):
     global CORRECT_ICON, WRONG_ICON
     CORRECT_ICON, WRONG_ICON = correct, wrong
 
+
+# =============================================
+# 1. 인터페이스 스타일 설정
+# =============================================
+RENDER_STYLE = "week4"   # "week4" | "panel"
+
+def set_style(style: str = "week4"):
+    """
+    스타일을 설정합니다.
+    - "week4":  이전 모듈과 유사한 Q 제목 + 보기(ol) 렌더링
+    - "panel":  기존 Week5 패널 스타일
+    """
+    global RENDER_STYLE
+    if style not in {"week4", "panel"}:
+        style = "week4"
+    RENDER_STYLE = style
+
+STYLE_WEEK4 = """
+<style>
+.qbox{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fff;}
+.qtitle{font-weight:700;font-size:1.05rem;margin-bottom:6px;}
+.qstem{margin:6px 0 10px 0;}
+.qchoices{margin:8px 0 0 22px;}
+.qchoices li{margin:4px 0;}
+.qlabel{display:inline-block;margin-top:6px;color:#6b7280;font-size:0.9rem}
+.qcode{background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
+</style>
+"""
+
+def _render_week4(qid: int, title: str, body: str, code: str = None):
+    import re as _re
+    choices = []
+    if code:
+        for line in code.splitlines():
+            m = _re.match(r"\s*(\d+)\)\s*(.+)$", line.strip())
+            if m:
+                choices.append((m.group(1), m.group(2)))
+    html = [STYLE_WEEK4, '<div class="qbox">',
+            f'<div class="qtitle">Q{qid}</div>',
+            f'<div class="qstem">{body}</div>']
+    if choices:
+        html.append('<div class="qlabel">보기</div>')
+        html.append('<ol class="qchoices">')
+        for n, txt in choices:
+            html.append(f"<li>{txt}</li>")
+        html.append("</ol>")
+    elif code:
+        from html import escape
+        html.append(f'<div class="qcode">{escape(code)}</div>')
+    html.append("</div>")
+    display(HTML("".join(html)))
 PANEL_CSS = """
 <style>
 .wq-panel {border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;padding:12px;background:#fafafa;}
@@ -151,7 +202,11 @@ Q = {
 
 def show(qid: int):
     q = Q[qid]
-    _panel(q["title"], q["body"], q.get("code"))
+    title, body, code = q["title"], q["body"], q.get("code")
+    if RENDER_STYLE == "week4":
+        _render_week4(qid, title, body, code)
+    else:
+        _panel(title, body, code)
 
 def explain(qid: int):
     q = Q[qid]
