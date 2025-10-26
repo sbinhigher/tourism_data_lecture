@@ -120,23 +120,23 @@ Q = {
     1: dict(
         kind="mcq_theory",
         title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
-        body="다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
+        body="다음 중 파이썬에서 코드 블록을 구분하는 방식으로 옳은 것은?",
         code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()",
         checker=lambda s: (_normalize_choice(s) == "3") or _matches_any_text(s, "들여쓰기", "indentation", "indent"),
-        explain="- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
+        explain="- 정답: 3\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
     ),
     2: dict(
         kind="mcq",
         title="Q2) 객관식 — if/elif/else 구조",
-        body="다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
+        body="다음 중 if문 구조에 대한 설명으로 틀린 것은?",
         code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다.",
         checker=lambda s: _normalize_choice(s) == "4",
-        explain="- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."
+        explain="- 정답: 4\n- `else`는 필수가 아니라 선택입니다."
     ),
     3: dict(
         kind="short",
         title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
-        body="다음 조건문을 **한 줄로** 표현하세요.",
+        body="다음 조건문을 한 줄로 표현하세요.",
         code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\"",
         checker=lambda s: ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s),
         explain="- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"
@@ -147,16 +147,15 @@ Q = {
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="for i in range(2, 7, 2):\n    print(i, end=' ')",
         checker=lambda s: _matches_any_text(s, "2 4 6", "2,4,6", "2-4-6", "246"),
-        explain="- 정답: **2 4 6**"
+        explain="- 정답: 2 4 6"
     ),
     5: dict(
-        kind="short",
-        title="Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
-        body="빈칸을 채워 코드를 완성하세요.",
-        code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
-        checker=lambda s: s.replace(" ", "") in {"idx,name", "i,name", "index,name", "k,v", "a,b"},
-        prompt="두 변수명을 콤마로 구분해 입력: ",
-        explain="- 예시 정답: `idx, name`"
+        kind="mcq",
+        title="Q5) 객관식 — Truthy / Falsy 값",
+        body="다음 중 Falsy(거짓으로 평가되는 값) 만 고른 것은?",
+        code="1) 0, '', None, []\n2) 1, '0', [0]\n3) 'False', 0.1, True\n4) [ ], {}, set([1])",
+        checker=lambda s: _normalize_choice(s) == "1",
+        explain="- 정답: 1\n- Falsy로 평가되는 값: `0`, `''`, `None`, `[]`, `{}`, `False`, `set()`, `range(0)` 등\n- 이외의 값은 모두 Truthy로 평가됩니다."
     ),
     6: dict(
         kind="mcq",
@@ -164,7 +163,7 @@ Q = {
         body="다음 중 zip() 함수의 설명으로 옳은 것은?",
         code="1) 여러 시퀀스를 병렬로 순회한다.\n2) 길이가 다르면 반드시 오류가 난다.\n3) 항상 가장 긴 시퀀스 기준으로 순회한다.\n4) 문자열에는 사용할 수 없다.",
         checker=lambda s: _normalize_choice(s) == "1",
-        explain="- 정답: **1**\n- zip은 여러 시퀀스를 병렬로 순회하며 기본적으로 **가장 짧은 길이**에 맞춰 잘립니다."
+        explain="- 정답: 1\n- zip은 여러 시퀀스를 병렬로 순회하며 기본적으로 가장 짧은 길이에 맞춰 잘립니다."
     ),
     7: dict(
         kind="mcq",
@@ -172,7 +171,7 @@ Q = {
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1",
         checker=lambda s: _matches_any_text(s, "1 2 3", "1,2,3", "123"),
-        explain="- 정답: **1 2 3** (줄바꿈으로 출력됨)"
+        explain="- 정답: 1 2 3 (줄바꿈으로 출력됨)"
     ),
     8: dict(
         kind="short",
@@ -185,18 +184,18 @@ Q = {
     9: dict(
         kind="mcq",
         title="Q9) 객관식 — 들여쓰기 차이에 따른 결과",
-        body='다음 두 코드 중, `"수고하셨습니다."`가 **조건과 무관하게 항상 실행**되는 것은?',
+        body='다음 두 코드 중, `"수고하셨습니다."`가 조건과 무관하게 항상 실행되는 것은?',
         code="A)\nif score >= 60:\n    print(\"합격입니다.\")\nprint(\"수고하셨습니다.\")\n\nB)\nif score >= 60:\n    print(\"합격입니다.\")\n    print(\"수고하셨습니다.\")",
         checker=lambda s: _matches_any_text(s, "a"),
-        explain="- 정답: **A** — 두 번째 print가 if 블록 **밖**에 있습니다."
+        explain="- 정답: A — 두 번째 print가 if 블록 밖에 있습니다."
     ),
     10: dict(
         kind="short",
         title="Q10) 주관식 — for문에서 누적 변수를 어디서 초기화해야 하나요?",
-        body="아래 코드는 의도와 다르게 동작합니다. **왜 그런지**와 **어떻게 고칠지**를 서술하세요.",
+        body="아래 코드는 의도와 다르게 동작합니다. 왜 그런지와 어떻게 고칠지를 서술하세요.",
         code="nums = [1, 2, 3]\nfor n in nums:\n    total = 0\n    total += n\nprint(total)",
         checker=lambda s: (("반복문 밖" in s) or ("밖에서" in s) or ("outside" in s) or ("한 번만" in s)),
-        explain="- `total`을 반복문 **밖에서 한 번만** 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
+        explain="- `total`을 반복문 밖에서 한 번만 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
     ),
 }
 
