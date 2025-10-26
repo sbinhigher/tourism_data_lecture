@@ -1,10 +1,10 @@
-
 # -*- coding: utf-8 -*-
 # Week5_Q.py : 제어문/반복문 과제 (if, 한줄 if, for, while, enumerate, zip, 들여쓰기, 무한루프)
-from IPython.display import display, HTML, Markdown
-import sys
+# 기능별 배치: 상수/스타일 → 공용 유틸 → 문제 레지스트리 → 공용 API → 호환 래퍼
 
-# ====== 글로벌 아이콘 (사용자 커스터마이즈 가능) ======
+from IPython.display import display, HTML, Markdown
+import re
+
 CORRECT_ICON = "✅"
 WRONG_ICON   = "❌"
 
@@ -12,7 +12,6 @@ def set_icons(correct="✅", wrong="❌"):
     global CORRECT_ICON, WRONG_ICON
     CORRECT_ICON, WRONG_ICON = correct, wrong
 
-# ====== 프리뷰 패널 공통 렌더러 ======
 PANEL_CSS = """
 <style>
 .wq-panel {border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;padding:12px;background:#fafafa;}
@@ -32,212 +31,148 @@ def _panel(title: str, body: str, code: str = None):
     html.append('</div>')
     display(HTML("".join(html)))
 
-# ====== 인터랙션 유틸 ======
+def _normalize_choice(s: str) -> str:
+    if s is None:
+        return ""
+    s = s.strip()
+    circled = {"①":"1","②":"2","③":"3","④":"4","⑤":"5"}
+    for k, v in circled.items():
+        s = s.replace(k, v)
+    s = s.replace("번", "").replace(")", "").replace(".", "")
+    m = re.match(r"^\s*(\d+)\s*$", s)
+    if m:
+        return m.group(1)
+    return s.strip().lower().replace(" ", "")
+
 def _ask_until_correct(checker, prompt="정답을 입력하세요: "):
     while True:
         try:
             s = input(prompt).strip()
         except EOFError:
-            # 노트북 환경이 아니어도 동작하게 — 표준 입력이 없으면 종료
             print("입력이 지원되지 않는 환경입니다.")
             return False
-        ok, msg = checker(s)
-        icon = CORRECT_ICON if ok else WRONG_ICON
-        print(icon, msg)
+        res = checker(s)
+        ok = bool(res)
+        print(CORRECT_ICON + " 정답입니다." if ok else WRONG_ICON + " 오답입니다. 다시 시도해보세요.")
         if ok:
             return True
 
-def _matches_any(s, *alts):
-    s_norm = s.strip().lower().replace(" ", "")
+def _matches_any_text(s, *alts):
+    s_norm = (s or "").strip().lower().replace(" ", "")
     for a in alts:
         a_norm = str(a).strip().lower().replace(" ", "")
         if s_norm == a_norm:
             return True
     return False
 
-# ====== 문제 1~10 (이론 1, 객/주관 혼합) ======
-# 1) 이론 객관식 — 들여쓰기
-def show_q1():
-    _panel(
-        "Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
-        "다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
-        code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()"
-    )
+Q = {
+    1: dict(
+        kind="mcq_theory",
+        title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
+        body="다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
+        code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()",
+        checker=lambda s: (_normalize_choice(s) == "3") or _matches_any_text(s, "들여쓰기", "indentation", "indent"),
+        explain="- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
+    ),
+    2: dict(
+        kind="mcq",
+        title="Q2) 객관식 — if/elif/else 구조",
+        body="다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
+        code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다.",
+        checker=lambda s: _normalize_choice(s) == "4",
+        explain="- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."
+    ),
+    3: dict(
+        kind="short",
+        title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
+        body="다음 조건문을 **한 줄로** 표현하세요.",
+        code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\"",
+        checker=lambda s: ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s),
+        explain="- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"
+    ),
+    4: dict(
+        kind="mcq",
+        title="Q4) 객관식 — for + range 결과",
+        body="다음 코드의 출력 결과는 무엇입니까?",
+        code="for i in range(2, 7, 2):\n    print(i, end=' ')",
+        checker=lambda s: _matches_any_text(s, "2 4 6", "2,4,6", "2-4-6", "246"),
+        explain="- 정답: **2 4 6**"
+    ),
+    5: dict(
+        kind="short",
+        title="Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
+        body="빈칸을 채워 코드를 완성하세요.",
+        code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
+        checker=lambda s: s.replace(" ", "") in {"idx,name", "i,name", "index,name", "k,v", "a,b"},
+        prompt="두 변수명을 콤마로 구분해 입력: ",
+        explain="- 예시 정답: `idx, name`"
+    ),
+    6: dict(
+        kind="mcq",
+        title="Q6) 객관식 — zip 함수 설명",
+        body="다음 중 zip() 함수의 설명으로 옳은 것은?",
+        code="1) 여러 시퀀스를 병렬로 순회한다.\n2) 길이가 다르면 반드시 오류가 난다.\n3) 항상 가장 긴 시퀀스 기준으로 순회한다.\n4) 문자열에는 사용할 수 없다.",
+        checker=lambda s: _normalize_choice(s) == "1",
+        explain="- 정답: **1**\n- zip은 여러 시퀀스를 병렬로 순회하며 기본적으로 **가장 짧은 길이**에 맞춰 잘립니다."
+    ),
+    7: dict(
+        kind="mcq",
+        title="Q7) 객관식 — while 반복 결과",
+        body="다음 코드의 출력 결과는 무엇입니까?",
+        code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1",
+        checker=lambda s: _matches_any_text(s, "1 2 3", "1,2,3", "123"),
+        explain="- 정답: **1 2 3** (줄바꿈으로 출력됨)"
+    ),
+    8: dict(
+        kind="short",
+        title="Q8) 주관식 — 무한 루프를 방지하려면?",
+        body="다음 while문이 무한 루프가 되지 않도록 필요한 조치를 서술하세요.",
+        code="count = 1\nwhile count <= 3:\n    print(count)\n    # 여기에 무엇이 필요할까요?",
+        checker=lambda s: (("+=" in s and "count" in s) or ("증가" in s) or ("갱신" in s)),
+        explain="- 예시: 반복 변수 갱신 (예: `count += 1`)"
+    ),
+    9: dict(
+        kind="mcq",
+        title="Q9) 객관식 — 들여쓰기 차이에 따른 결과",
+        body='다음 두 코드 중, `"수고하셨습니다."`가 **조건과 무관하게 항상 실행**되는 것은?',
+        code="A)\nif score >= 60:\n    print(\"합격입니다.\")\nprint(\"수고하셨습니다.\")\n\nB)\nif score >= 60:\n    print(\"합격입니다.\")\n    print(\"수고하셨습니다.\")",
+        checker=lambda s: _matches_any_text(s, "a"),
+        explain="- 정답: **A** — 두 번째 print가 if 블록 **밖**에 있습니다."
+    ),
+    10: dict(
+        kind="short",
+        title="Q10) 주관식 — for문에서 누적 변수를 어디서 초기화해야 하나요?",
+        body="아래 코드는 의도와 다르게 동작합니다. **왜 그런지**와 **어떻게 고칠지**를 서술하세요.",
+        code="nums = [1, 2, 3]\nfor n in nums:\n    total = 0\n    total += n\nprint(total)",
+        checker=lambda s: (("반복문 밖" in s) or ("밖에서" in s) or ("outside" in s) or ("한 번만" in s)),
+        explain="- `total`을 반복문 **밖에서 한 번만** 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
+    ),
+}
 
-def explain_q1():
-    display(Markdown("- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."))
+def show(qid: int):
+    q = Q[qid]
+    _panel(q["title"], q["body"], q.get("code"))
 
-def answer_q1(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "3"), "정답은 3) 들여쓰기 입니다."))
-    if show_explanation: explain_q1()
+def explain(qid: int):
+    q = Q[qid]
+    display(Markdown(q["explain"]))
+
+def answer(qid: int, show_explanation: bool=True):
+    q = Q[qid]
+    prompt = q.get("prompt", "정답을 입력하세요: ")
+    ok = _ask_until_correct(q["checker"], prompt=prompt)
+    if show_explanation:
+        explain(qid)
     return ok
 
-# 2) if 구조 OX (객관식)
-def show_q2():
-    _panel(
-        "Q2) 객관식 — if/elif/else 구조",
-        "다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
-        code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다."
-    )
-
-def explain_q2():
-    display(Markdown("- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."))
-
-def answer_q2(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "4"), "정답은 4) 입니다."))
-    if show_explanation: explain_q2()
-    return ok
-
-# 3) 한 줄 if (주관식)
-def show_q3():
-    _panel(
-        "Q3) 주관식 — 한 줄 if문(조건 표현식)",
-        "다음 조건문을 **한 줄로** 표현하세요.",
-        code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\""
-    )
-
-def explain_q3():
-    display(Markdown("- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"))
-
-def answer_q3(show_explanation: bool=True):
-    def checker(s):
-        ok = ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s)
-        return ok, "예시: result = \"성인\" if age >= 20 else \"미성년자\""
-    ok = _ask_until_correct(checker)
-    if show_explanation: explain_q3()
-    return ok
-
-# 4) for-range 결과 (객관식)
-def show_q4():
-    _panel(
-        "Q4) 객관식 — for + range 결과",
-        "다음 코드의 출력 결과는 무엇입니까?",
-        code="for i in range(2, 7, 2):\n    print(i, end=' ')"
-    )
-
-def explain_q4():
-    display(Markdown("- 정답: **2 4 6**"))
-
-def answer_q4(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "2 4 6", "2,4,6", "246"), "정답은 2 4 6 입니다."))
-    if show_explanation: explain_q4()
-    return ok
-
-# 5) enumerate 빈칸 (주관식)
-def show_q5():
-    _panel(
-        "Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
-        "빈칸을 채워 코드를 완성하세요.",
-        code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)"
-    )
-
-def explain_q5():
-    display(Markdown("- 예시 정답: `idx, name`"))
-
-def answer_q5(show_explanation: bool=True):
-    def checker(s):
-        normalized = s.replace(" ", "")
-        ok = normalized in {"idx,name", "i,name", "index,name", "k,v", "a,b"}
-        return ok, "예: idx, name"
-    ok = _ask_until_correct(checker, prompt="두 변수명을 콤마로 구분해 입력: ")
-    if show_explanation: explain_q5()
-    return ok
-
-# 6) zip 개념 (객관식)
-def show_q6():
-    _panel(
-        "Q6) 객관식 — zip 함수 설명",
-        "다음 중 zip() 함수의 설명으로 옳은 것은?",
-        code="1) 여러 시퀀스를 병렬로 순회한다.\n2) 길이가 다르면 반드시 오류가 난다.\n3) 항상 가장 긴 시퀀스 기준으로 순회한다.\n4) 문자열에는 사용할 수 없다."
-    )
-
-def explain_q6():
-    display(Markdown("- 정답: **1**\n- zip은 여러 시퀀스를 병렬로 순회하며 기본적으로 **가장 짧은 길이**에 맞춰 잘립니다."))
-
-def answer_q6(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "1"), "정답은 1) 입니다."))
-    if show_explanation: explain_q6()
-    return ok
-
-# 7) while 결과 (객관식)
-def show_q7():
-    _panel(
-        "Q7) 객관식 — while 반복 결과",
-        "다음 코드의 출력 결과는 무엇입니까?",
-        code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1"
-    )
-
-def explain_q7():
-    display(Markdown("- 정답: **1 2 3** (줄바꿈으로 출력됨)"))
-
-def answer_q7(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "1 2 3", "1,2,3", "123"), "정답은 1 2 3 입니다."))
-    if show_explanation: explain_q7()
-    return ok
-
-# 8) 무한 루프 방지 (주관식)
-def show_q8():
-    _panel(
-        "Q8) 주관식 — 무한 루프를 방지하려면?",
-        "다음 while문이 무한 루프가 되지 않도록 필요한 조치를 서술하세요.",
-        code="count = 1\nwhile count <= 3:\n    print(count)\n    # 여기에 무엇이 필요할까요?"
-    )
-
-def explain_q8():
-    display(Markdown("- 예시: 반복 변수 갱신 (예: `count += 1`)"))
-
-def answer_q8(show_explanation: bool=True):
-    def checker(s):
-        ok = ("+=" in s and "count" in s) or ("증가" in s) or ("갱신" in s)
-        return ok, "예: count += 1"
-    ok = _ask_until_correct(checker)
-    if show_explanation: explain_q8()
-    return ok
-
-# 9) 들여쓰기 판별 (객관식)
-def show_q9():
-    _panel(
-        "Q9) 객관식 — 들여쓰기 차이에 따른 결과",
-        "다음 두 코드 중, \"수고하셨습니다.\"가 **조건과 무관하게 항상 실행**되는 것은?",
-        code="A)\nif score >= 60:\n    print(\"합격입니다.\")\nprint(\"수고하셨습니다.\")\n\nB)\nif score >= 60:\n    print(\"합격입니다.\")\n    print(\"수고하셨습니다.\")"
-    )
-
-def explain_q9():
-    display(Markdown("- 정답: **A** — 두 번째 print가 if 블록 **밖**에 있습니다."))
-
-def answer_q9(show_explanation: bool=True):
-    ok = _ask_until_correct(lambda s: (_matches_any(s, "A", "a"), "정답은 A 입니다."))
-    if show_explanation: explain_q9()
-    return ok
-
-# 10) 누적 변수 초기화 위치 (주관식)
-def show_q10():
-    _panel(
-        "Q10) 주관식 — for문에서 누적 변수를 어디서 초기화해야 하나요?",
-        "아래 코드는 의도와 다르게 동작합니다. **왜 그런지**와 **어떻게 고칠지**를 서술하세요.",
-        code="nums = [1, 2, 3]\nfor n in nums:\n    total = 0\n    total += n\nprint(total)"
-    )
-
-def explain_q10():
-    display(Markdown("- `total`을 반복문 **밖에서 한 번만** 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."))
-
-def answer_q10(show_explanation: bool=True):
-    def checker(s):
-        ok = ("반복문 밖" in s) or ("밖에서" in s) or ("outside" in s) or ("한 번만" in s)
-        return ok, "핵심: 누적 변수는 반복 **전**에 한 번만 초기화"
-    ok = _ask_until_correct(checker)
-    if show_explanation: explain_q10()
-    return ok
-
-# ====== 일괄 미리보기 / 답안 요약 ======
 def show_all():
-    show_q1(); show_q2(); show_q3(); show_q4(); show_q5()
-    show_q6(); show_q7(); show_q8(); show_q9(); show_q10()
+    for i in range(1, len(Q)+1):
+        show(i)
     display(Markdown("> 모든 문제 프리뷰가 표시되었습니다."))
 
 def answers_brief():
     return {
-        1: "3",
+        1: "3 (들여쓰기)",
         2: "4",
         3: 'result = "성인" if age >= 20 else "미성년자"',
         4: "2 4 6",
@@ -248,3 +183,14 @@ def answers_brief():
         9: "A",
         10:"누적 변수는 반복문 밖에서 초기화"
     }
+
+def _mk_show(qid):    return lambda : show(qid)
+def _mk_answer(qid):  return lambda show_explanation=True: answer(qid, show_explanation)
+def _mk_explain(qid): return lambda : explain(qid)
+
+for _i in range(1, 10+1):
+    globals()[f"show_q{_i}"]    = _mk_show(_i)
+    globals()[f"answer_q{_i}"]  = _mk_answer(_i)
+    globals()[f"explain_q{_i}"] = _mk_explain(_i)
+
+# 끝
