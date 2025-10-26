@@ -12,57 +12,13 @@ def set_icons(correct="✅", wrong="❌"):
     global CORRECT_ICON, WRONG_ICON
     CORRECT_ICON, WRONG_ICON = correct, wrong
 
-
-# =============================================
-# 1. 인터페이스 스타일 설정
-# =============================================
-RENDER_STYLE = "week4"   # "week4" | "panel"
-
+RENDER_STYLE = "week4"
 def set_style(style: str = "week4"):
-    """
-    스타일을 설정합니다.
-    - "week4":  이전 모듈과 유사한 Q 제목 + 보기(ol) 렌더링
-    - "panel":  기존 Week5 패널 스타일
-    """
     global RENDER_STYLE
     if style not in {"week4", "panel"}:
         style = "week4"
     RENDER_STYLE = style
 
-STYLE_WEEK4 = """
-<style>
-.qbox{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fff;}
-.qtitle{font-weight:700;font-size:1.05rem;margin-bottom:6px;}
-.qstem{margin:6px 0 10px 0;}
-.qchoices{margin:8px 0 0 22px;}
-.qchoices li{margin:4px 0;}
-.qlabel{display:inline-block;margin-top:6px;color:#6b7280;font-size:0.9rem}
-.qcode{background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
-</style>
-"""
-
-def _render_week4(qid: int, title: str, body: str, code: str = None):
-    import re as _re
-    choices = []
-    if code:
-        for line in code.splitlines():
-            m = _re.match(r"\s*(\d+)\)\s*(.+)$", line.strip())
-            if m:
-                choices.append((m.group(1), m.group(2)))
-    html = [STYLE_WEEK4, '<div class="qbox">',
-            f'<div class="qtitle">Q{qid}</div>',
-            f'<div class="qstem">{body}</div>']
-    if choices:
-        html.append('<div class="qlabel">보기</div>')
-        html.append('<ol class="qchoices">')
-        for n, txt in choices:
-            html.append(f"<li>{txt}</li>")
-        html.append("</ol>")
-    elif code:
-        from html import escape
-        html.append(f'<div class="qcode">{escape(code)}</div>')
-    html.append("</div>")
-    display(HTML("".join(html)))
 PANEL_CSS = """
 <style>
 .wq-panel {border:1px solid #e5e7eb;border-radius:8px;margin:12px 0;padding:12px;background:#fafafa;}
@@ -80,6 +36,40 @@ def _panel(title: str, body: str, code: str = None):
         from html import escape
         html.append(f'<div class="wq-code">{escape(code)}</div>')
     html.append('</div>')
+    display(HTML("".join(html)))
+
+STYLE_WEEK4 = """
+<style>
+.qbox{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px;margin:14px 0;background:#fff;}
+.qtitle{font-weight:700;font-size:1.05rem;margin-bottom:6px;}
+.qstem{margin:6px 0 10px 0;}
+.qchoices{margin:8px 0 0 22px;}
+.qchoices li{margin:4px 0;}
+.qlabel{display:inline-block;margin-top:6px;color:#6b7280;font-size:0.9rem}
+.qcode{background:#0b1021;color:#eaeefb;padding:10px;border-radius:6px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,Consolas,monospace;}
+</style>
+"""
+
+def _render_week4(qid: int, title: str, body: str, code: str = None):
+    choices = []
+    if code:
+        for line in code.splitlines():
+            m = re.match(r"\s*(\d+)\)\s*(.+)$", line.strip())
+            if m:
+                choices.append((m.group(1), m.group(2)))
+    html = [STYLE_WEEK4, '<div class="qbox">',
+            f'<div class="qtitle">Q{qid}</div>',
+            f'<div class="qstem">{body}</div>']
+    if choices:
+        html.append('<div class="qlabel">보기</div>')
+        html.append('<ol class="qchoices">')
+        for n, txt in choices:
+            html.append(f"<li>{txt}</li>")
+        html.append("</ol>")
+    elif code:
+        from html import escape
+        html.append(f'<div class="qcode">{escape(code)}</div>')
+    html.append("</div>")
     display(HTML("".join(html)))
 
 def _normalize_choice(s: str) -> str:
@@ -102,8 +92,7 @@ def _ask_until_correct(checker, prompt="정답을 입력하세요: "):
         except EOFError:
             print("입력이 지원되지 않는 환경입니다.")
             return False
-        res = checker(s)
-        ok = bool(res)
+        ok = bool(checker(s))
         print(CORRECT_ICON + " 정답입니다." if ok else WRONG_ICON + " 오답입니다. 다시 시도해보세요.")
         if ok:
             return True
@@ -120,23 +109,23 @@ Q = {
     1: dict(
         kind="mcq_theory",
         title="Q1) 객관식(이론) — 파이썬의 코드 블록 구분 방식",
-        body="다음 중 파이썬에서 코드 블록을 구분하는 방식으로 옳은 것은?",
+        body="다음 중 파이썬에서 **코드 블록을 구분**하는 방식으로 옳은 것은?",
         code="1) 중괄호 {}\n2) 세미콜론 ;\n3) 들여쓰기(Indentation)\n4) 괄호 ()",
         checker=lambda s: (_normalize_choice(s) == "3") or _matches_any_text(s, "들여쓰기", "indentation", "indent"),
-        explain="- 정답: 3\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
+        explain="- 정답: **3**\n- 파이썬은 들여쓰기로 코드 블록을 구분합니다."
     ),
     2: dict(
         kind="mcq",
         title="Q2) 객관식 — if/elif/else 구조",
-        body="다음 중 if문 구조에 대한 설명으로 틀린 것은?",
+        body="다음 중 if문 구조에 대한 설명으로 **틀린 것**은?",
         code="1) elif는 여러 개 사용할 수 있다.\n2) else는 선택적으로 사용할 수 있다.\n3) if는 조건이 참일 때만 실행된다.\n4) 모든 if문에는 반드시 else가 있어야 한다.",
         checker=lambda s: _normalize_choice(s) == "4",
-        explain="- 정답: 4\n- `else`는 필수가 아니라 선택입니다."
+        explain="- 정답: **4**\n- `else`는 필수가 아니라 선택입니다."
     ),
     3: dict(
         kind="short",
         title="Q3) 주관식 — 한 줄 if문(조건 표현식)",
-        body="다음 조건문을 한 줄로 표현하세요.",
+        body="다음 조건문을 **한 줄로** 표현하세요.",
         code="if age >= 20:\n    result = \"성인\"\nelse:\n    result = \"미성년자\"",
         checker=lambda s: ("if" in s) and ("else" in s) and ("성인" in s) and ("미성년자" in s),
         explain="- 예시 정답: `result = \"성인\" if age >= 20 else \"미성년자\"`"
@@ -147,23 +136,24 @@ Q = {
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="for i in range(2, 7, 2):\n    print(i, end=' ')",
         checker=lambda s: _matches_any_text(s, "2 4 6", "2,4,6", "2-4-6", "246"),
-        explain="- 정답: 2 4 6"
+        explain="- 정답: **2 4 6**"
     ),
     5: dict(
-        kind="mcq",
-        title="Q5) 객관식 — Truthy / Falsy 값",
-        body="다음 중 Falsy(거짓으로 평가되는 값) 만 고른 것은?",
-        code="1) 0, '', None, []\n2) 1, '0', [0]\n3) 'False', 0.1, True\n4) [ ], {}, set([1])",
-        checker=lambda s: _normalize_choice(s) == "1",
-        explain="- 정답: 1\n- Falsy로 평가되는 값: `0`, `''`, `None`, `[]`, `{}`, `False`, `set()`, `range(0)` 등\n- 이외의 값은 모두 Truthy로 평가됩니다."
+        kind="short",
+        title="Q5) 주관식 — enumerate로 인덱스와 값 동시 출력",
+        body="빈칸을 채워 코드를 완성하세요.",
+        code="fruits = [\"apple\", \"banana\", \"cherry\"]\nfor ____, ____ in enumerate(fruits, start=1):\n    print(____, ____)",
+        checker=lambda s: s.replace(" ", "") in {"idx,name", "i,name", "index,name", "k,v", "a,b"},
+        prompt="두 변수명을 콤마로 구분해 입력: ",
+        explain="- 예시 정답: `idx, name`"
     ),
     6: dict(
         kind="mcq",
-        title="Q6) 객관식 — zip 함수 설명",
-        body="다음 중 zip() 함수의 설명으로 옳은 것은?",
-        code="1) 여러 시퀀스를 병렬로 순회한다.\n2) 길이가 다르면 반드시 오류가 난다.\n3) 항상 가장 긴 시퀀스 기준으로 순회한다.\n4) 문자열에는 사용할 수 없다.",
+        title="Q6) 객관식 — while에서 무한 루프 탈출",
+        body="다음 `while`문에서 **무한 루프를 깨기 위해** 빈칸(`_____`)에 들어갈 구문을 고르시오.<div class=\"qcode\">i = 0\nwhile True:\n    i += 1\n    if i > 5:\n        _____\n    print(i)</div>",
+        code="1) break\n2) continue\n3) pass\n4) raise SystemExit",
         checker=lambda s: _normalize_choice(s) == "1",
-        explain="- 정답: 1\n- zip은 여러 시퀀스를 병렬로 순회하며 기본적으로 가장 짧은 길이에 맞춰 잘립니다."
+        explain="- 정답: **1) break**\n- `break`는 가장 안쪽 반복문을 **즉시 종료**합니다.\n- `continue`는 이번 반복만 건너뛰며, `pass`는 아무 동작도 하지 않습니다.\n- `raise SystemExit`는 프로그램 종료 예외를 발생시키며, 보통 반복문 제어용으로 사용하지 않습니다."
     ),
     7: dict(
         kind="mcq",
@@ -171,7 +161,7 @@ Q = {
         body="다음 코드의 출력 결과는 무엇입니까?",
         code="n = 1\nwhile n < 4:\n    print(n)\n    n += 1",
         checker=lambda s: _matches_any_text(s, "1 2 3", "1,2,3", "123"),
-        explain="- 정답: 1 2 3 (줄바꿈으로 출력됨)"
+        explain="- 정답: **1 2 3** (줄바꿈으로 출력됨)"
     ),
     8: dict(
         kind="short",
@@ -184,18 +174,18 @@ Q = {
     9: dict(
         kind="mcq",
         title="Q9) 객관식 — 들여쓰기 차이에 따른 결과",
-        body='다음 두 코드 중, `"수고하셨습니다."`가 조건과 무관하게 항상 실행되는 것은?',
+        body='다음 두 코드 중, `"수고하셨습니다."`가 **조건과 무관하게 항상 실행**되는 것은?',
         code="A)\nif score >= 60:\n    print(\"합격입니다.\")\nprint(\"수고하셨습니다.\")\n\nB)\nif score >= 60:\n    print(\"합격입니다.\")\n    print(\"수고하셨습니다.\")",
         checker=lambda s: _matches_any_text(s, "a"),
-        explain="- 정답: A — 두 번째 print가 if 블록 밖에 있습니다."
+        explain="- 정답: **A** — 두 번째 print가 if 블록 **밖**에 있습니다."
     ),
     10: dict(
         kind="short",
         title="Q10) 주관식 — for문에서 누적 변수를 어디서 초기화해야 하나요?",
-        body="아래 코드는 의도와 다르게 동작합니다. 왜 그런지와 어떻게 고칠지를 서술하세요.",
+        body="아래 코드는 의도와 다르게 동작합니다. **왜 그런지**와 **어떻게 고칠지**를 서술하세요.",
         code="nums = [1, 2, 3]\nfor n in nums:\n    total = 0\n    total += n\nprint(total)",
         checker=lambda s: (("반복문 밖" in s) or ("밖에서" in s) or ("outside" in s) or ("한 번만" in s)),
-        explain="- `total`을 반복문 밖에서 한 번만 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
+        explain="- `total`을 반복문 **밖에서 한 번만** 초기화해야 합니다. 현재는 매 반복마다 0으로 리셋되어 마지막 값만 남습니다."
     ),
 }
 
@@ -231,7 +221,7 @@ def answers_brief():
         3: 'result = "성인" if age >= 20 else "미성년자"',
         4: "2 4 6",
         5: "idx, name",
-        6: "1",
+        6: "1 (break)",
         7: "1 2 3",
         8: "count += 1 (반복 변수 갱신)",
         9: "A",
